@@ -95,7 +95,6 @@ async function loadPolicies() {
 
         // Render policies grouped by section in order: 1, 2, 3
         let html = '';
-        // const sectionOrder = ['1', '2', '3'];
         const sectionOrder = ['3', '2', '1'];
         let hasAnyPolicies = false;
         

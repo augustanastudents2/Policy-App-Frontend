@@ -22,7 +22,7 @@ body {
 .sidebar {
     width: 250px;
     background-color: white;
-    border-right: 1px solid white/*#e0e0e0*/;
+    border-right: 1px solid white;
     padding: 20px;
     position: fixed;
     height: 100vh;
@@ -32,7 +32,6 @@ body {
 .logo {
     width: 80px;
     height: 80px;
-    /*border-radius: 50%; /* Remove if you don't want circular */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -138,7 +137,7 @@ body {
     background-color: white;
     padding: 20px 40px;
     margin: -20px -40px 30px -40px;
-    border-bottom: 1px solid white/*#e0e0e0*/;
+    border-bottom: 1px solid white;
 }
 
 .search-container {
