@@ -56,7 +56,7 @@ async function loadPolicies() {
         policiesList.innerHTML = '<div class="empty-state"><div class="empty-state-text">Loading policies...</div></div>';
 
         const response = await fetch(
-            "https://asa-policy-backend.onrender.com/api/policies",
+            `${window.API_BASE_URL}/api/policies`,
             {
                 method: "GET",
                 headers: {

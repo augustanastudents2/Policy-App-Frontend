@@ -17,7 +17,7 @@ async function deletePolicy(policyId, policyName, onSuccess = null) {
     try {
         // Get current user info to check role
         const userResponse = await fetch(
-            "https://asa-policy-backend.onrender.com/api/auth/me",
+            `${window.API_BASE_URL}/api/auth/me`,
             {
                 method: "GET",
                 headers: {
@@ -63,7 +63,7 @@ async function deletePolicy(policyId, policyName, onSuccess = null) {
     try {
         // Use policy_id (TEXT like "1.1.1") in the API endpoint
         const response = await fetch(
-            `https://asa-policy-backend.onrender.com/api/policies/${encodeURIComponent(policyId)}`,
+            `${window.API_BASE_URL}/api/policies/${encodeURIComponent(policyId)}`,
             {
                 method: "DELETE",
                 headers: {

@@ -1,5 +1,6 @@
 // Master Dashboard JavaScript
 // Handles user management, policy reviews, and dashboard functionality
+const API_BASE_URL = window.API_BASE_URL;
 
 let currentUserRole = null;
 
@@ -24,7 +25,7 @@ async function checkUserRole() {
             return;
         }
         
-        const response = await fetch('https://asa-policy-backend.onrender.com/api/auth/me', {
+        const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -153,7 +154,7 @@ async function handleMemberSubmit(e) {
             return;
         }
         
-        const response = await fetch('https://asa-policy-backend.onrender.com/api/auth/register', {
+        const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -193,7 +194,7 @@ async function loadAdminMembers() {
             return;
         }
         
-        const response = await fetch('https://asa-policy-backend.onrender.com/api/auth/users', {
+        const response = await fetch(`${API_BASE_URL}/api/auth/users`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -279,7 +280,7 @@ async function updateUserRole(userId, newRole) {
             return;
         }
         
-        const response = await fetch(`https://asa-policy-backend.onrender.com/api/auth/users/${userId}/role`, {
+        const response = await fetch(`${API_BASE_URL}/api/auth/users/${userId}/role`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -332,7 +333,7 @@ async function deleteUser(userId, userEmail) {
             return;
         }
         
-        const response = await fetch(`https://asa-policy-backend.onrender.com/api/auth/users/${userId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/auth/users/${userId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -364,7 +365,7 @@ async function getPolicies() {
     }
 
     try {
-        const response = await fetch('https://asa-policy-backend.onrender.com/api/policies', {
+        const response = await fetch(`${API_BASE_URL}/api/policies`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -390,7 +391,7 @@ async function getPolicyReviews(policyId) {
     }
 
     try {
-        const response = await fetch(`https://asa-policy-backend.onrender.com/api/policies/${policyId}/reviews`, {
+        const response = await fetch(`${API_BASE_URL}/api/policies/${policyId}/reviews`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -555,7 +556,7 @@ async function resetAllReviews() {
             return;
         }
         
-        const response = await fetch('https://asa-policy-backend.onrender.com/api/policies/reviews/reset-all', {
+        const response = await fetch(`${API_BASE_URL}/api/policies/reviews/reset-all`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

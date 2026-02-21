@@ -33,7 +33,7 @@ async function loadBylawView(bylawId) {
     try {
         // Fetch all bylaws and find the one with matching UUID
         const response = await fetch(
-            "https://asa-policy-backend.onrender.com/api/bylaws",
+            `${window.API_BASE_URL}/api/bylaws`,
             {
                 method: "GET",
                 headers: {

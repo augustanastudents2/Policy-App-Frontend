@@ -42,7 +42,7 @@ async function loadSuggestions() {
         suggestionsList.innerHTML = '<div class="empty-state"><div class="empty-state-text">Loading suggestions...</div></div>';
 
         // Fetch suggestions (now includes policy/bylaw info in response)
-        const suggestionsResponse = await fetch("https://asa-policy-backend.onrender.com/api/suggestions", {
+        const suggestionsResponse = await fetch(`${window.API_BASE_URL}/api/suggestions`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

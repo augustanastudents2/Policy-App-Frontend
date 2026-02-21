@@ -1,6 +1,7 @@
 // ============================================
 // Profile Panel - Active Implementation
 // ============================================
+const API_BASE_URL = window.API_BASE_URL;
 
 async function toggleProfilePanel() {
   const panel = document.getElementById("profilePanel");
@@ -28,7 +29,7 @@ async function loadProfileData() {
     }
 
     const response = await fetch(
-      "https://asa-policy-backend.onrender.com/api/auth/me",
+      `${API_BASE_URL}/api/auth/me`,
       {
         method: "GET",
         headers: {

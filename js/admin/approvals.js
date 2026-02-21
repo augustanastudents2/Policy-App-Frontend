@@ -27,7 +27,7 @@ async function loadPendingPolicies() {
         container.innerHTML = '<div class="empty-state"><div class="empty-state-text">Loading policies...</div></div>';
 
         const response = await fetch(
-            `https://asa-policy-backend.onrender.com/api/policies?status=draft`,
+            `${window.API_BASE_URL}/api/policies?status=draft`,
             {
                 method: "GET",
                 headers: {
@@ -87,7 +87,7 @@ async function loadPendingBylaws() {
         container.innerHTML = '<div class="empty-state"><div class="empty-state-text">Loading bylaws...</div></div>';
 
         const response = await fetch(
-            `https://asa-policy-backend.onrender.com/api/bylaws?status=draft`,
+            `${window.API_BASE_URL}/api/bylaws?status=draft`,
             {
                 method: "GET",
                 headers: {

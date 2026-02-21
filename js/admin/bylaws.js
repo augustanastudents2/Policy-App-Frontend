@@ -42,7 +42,7 @@ async function loadBylaws() {
         bylawsList.innerHTML = '<div class="empty-state"><div class="empty-state-text">Loading bylaws...</div></div>';
 
         const response = await fetch(
-            "https://asa-policy-backend.onrender.com/api/bylaws",
+            `${window.API_BASE_URL}/api/bylaws`,
             {
                 method: "GET",
                 headers: {

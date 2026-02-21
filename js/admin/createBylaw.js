@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         isEditMode = true;
         try {
             const response = await fetch(
-                `https://asa-policy-backend.onrender.com/api/bylaws`,
+                `${window.API_BASE_URL}/api/bylaws`,
                 {
                     method: "GET",
                     headers: {
@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (isEditMode && bylawId) {
             // Update existing bylaw (use UUID)
             response = await fetch(
-                `https://asa-policy-backend.onrender.com/api/bylaws/${bylawId}`,
+                `${window.API_BASE_URL}/api/bylaws/${bylawId}`,
                 {
                     method: "PUT",
                     headers: headers,
@@ -144,7 +144,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         } else {
             // Create new bylaw
             response = await fetch(
-                "https://asa-policy-backend.onrender.com/api/bylaws",
+                `${window.API_BASE_URL}/api/bylaws`,
                 {
                     method: "POST",
                     headers: headers,

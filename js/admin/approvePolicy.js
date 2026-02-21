@@ -17,7 +17,7 @@ async function approvePolicy(policyId, onSuccess = null) {
 
     try {
         const response = await fetch(
-            `https://asa-policy-backend.onrender.com/api/policies/${encodeURIComponent(policyId)}/approve`,
+            `${window.API_BASE_URL}/api/policies/${encodeURIComponent(policyId)}/approve`,
             {
                 method: "PUT",
                 headers: {

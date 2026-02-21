@@ -23,7 +23,7 @@ async function disapprovePolicy(policyId, onSuccess = null) {
 
     try {
         const response = await fetch(
-            `https://asa-policy-backend.onrender.com/api/policies/${encodeURIComponent(policyId)}`,
+            `${window.API_BASE_URL}/api/policies/${encodeURIComponent(policyId)}`,
             {
                 method: "DELETE",
                 headers: {

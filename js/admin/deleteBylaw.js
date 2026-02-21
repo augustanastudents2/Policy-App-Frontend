@@ -18,7 +18,7 @@ async function deleteBylaw(bylawId, bylawNumber, bylawTitle, onSuccess = null) {
     try {
         // Get current user info to check role
         const userResponse = await fetch(
-            "https://asa-policy-backend.onrender.com/api/auth/me",
+            `${window.API_BASE_URL}/api/auth/me`,
             {
                 method: "GET",
                 headers: {
@@ -64,7 +64,7 @@ async function deleteBylaw(bylawId, bylawNumber, bylawTitle, onSuccess = null) {
     try {
         // Use UUID in the API endpoint
         const response = await fetch(
-            `https://asa-policy-backend.onrender.com/api/bylaws/${encodeURIComponent(bylawId)}`,
+            `${window.API_BASE_URL}/api/bylaws/${encodeURIComponent(bylawId)}`,
             {
                 method: "DELETE",
                 headers: {

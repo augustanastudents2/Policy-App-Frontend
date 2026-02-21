@@ -3,7 +3,7 @@
 // ============================================
 
 // API Configuration
-const API_BASE_URL = window.API_BASE_URL || 'https://asa-policy-backend.onrender.com';
+const API_BASE_URL = window.API_BASE_URL;
 
 /**
  * Makes an API request with error handling

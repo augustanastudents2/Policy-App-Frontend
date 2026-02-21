@@ -28,7 +28,7 @@ async function deleteSuggestion(suggestionId, suggestionPreview, onSuccess = nul
     try {
         // Use suggestion_id (UUID) in the API endpoint
         const response = await fetch(
-            `https://asa-policy-backend.onrender.com/api/suggestions/${encodeURIComponent(suggestionId)}`,
+            `${window.API_BASE_URL}/api/suggestions/${encodeURIComponent(suggestionId)}`,
             {
                 method: "DELETE",
                 headers: {

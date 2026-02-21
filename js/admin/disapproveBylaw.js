@@ -23,7 +23,7 @@ async function disapproveBylaw(bylawId, onSuccess = null) {
 
     try {
         const response = await fetch(
-            `https://asa-policy-backend.onrender.com/api/bylaws/${bylawId}`,
+            `${window.API_BASE_URL}/api/bylaws/${bylawId}`,
             {
                 method: "DELETE",
                 headers: {

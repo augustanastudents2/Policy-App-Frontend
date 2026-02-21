@@ -53,7 +53,7 @@ async function loadPolicyView(policyId) {
     try {
         // Fetch all policies and find the one with matching UUID
         const response = await fetch(
-            "https://asa-policy-backend.onrender.com/api/policies",
+            `${window.API_BASE_URL}/api/policies`,
             {
                 method: "GET",
                 headers: {
@@ -202,7 +202,7 @@ async function loadPolicyReviews(policyIdText) {
     try {
         // Get current user info to check if they've already reviewed
         const userResponse = await fetch(
-            "https://asa-policy-backend.onrender.com/api/auth/me",
+            `${window.API_BASE_URL}/api/auth/me`,
             {
                 method: "GET",
                 headers: {
@@ -220,7 +220,7 @@ async function loadPolicyReviews(policyIdText) {
 
         // Get all reviews for this policy
         const reviewsResponse = await fetch(
-            `https://asa-policy-backend.onrender.com/api/policies/${encodeURIComponent(policyIdText)}/reviews`,
+            `${window.API_BASE_URL}/api/policies/${encodeURIComponent(policyIdText)}/reviews`,
             {
                 method: "GET",
                 headers: {
@@ -329,7 +329,7 @@ async function handleReviewSubmit(e) {
 
     try {
         const response = await fetch(
-            `https://asa-policy-backend.onrender.com/api/policies/${encodeURIComponent(policyIdText)}/reviews`,
+            `${window.API_BASE_URL}/api/policies/${encodeURIComponent(policyIdText)}/reviews`,
             {
                 method: "POST",
                 headers: {
@@ -386,7 +386,7 @@ async function resetAllPolicyReviews() {
     // Check if user is admin
     try {
         const userResponse = await fetch(
-            "https://asa-policy-backend.onrender.com/api/auth/me",
+            `${window.API_BASE_URL}/api/auth/me`,
             {
                 method: "GET",
                 headers: {
@@ -418,7 +418,7 @@ async function resetAllPolicyReviews() {
 
     try {
         const response = await fetch(
-            `https://asa-policy-backend.onrender.com/api/policies/reviews/reset-all`,
+            `${window.API_BASE_URL}/api/policies/reviews/reset-all`,
             {
                 method: "DELETE",
                 headers: {
