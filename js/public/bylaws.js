@@ -154,7 +154,7 @@ function createBylawCardElement(bylaw) {
  */
 function handleBylawCardClick(bylaw) {
     // Navigate to bylaw detail page with the bylaw's id as a query parameter
-    window.location.href = `/frontend/public/bylaw-detail.html?id=${bylaw.id}`;
+    window.location.href = `bylaw-detail.html?id=${bylaw.id}`;
 }
 
 /**
@@ -264,7 +264,7 @@ async function updateBylawSidebar(currentBylaw) {
     otherBylaws.forEach(bylaw => {
         const title = bylaw.title || bylaw.bylawTitle || 'Untitled';
         const number = bylaw.number || bylaw.bylawNumber || '';
-        html += `<a href="/frontend/public/bylaw-detail.html?id=${bylaw.id}" class="sidebar-link">Bylaw #${number} - ${title}</a>`;
+        html += `<a href="bylaw-detail.html?id=${bylaw.id}" class="sidebar-link">Bylaw #${number} - ${title}</a>`;
     });
     html += '</div>';
     
@@ -277,7 +277,7 @@ async function updateBylawSidebar(currentBylaw) {
  * @returns {void}
  */
 function downloadPDFFromAssets(filename) {
-    const pdfUrl = `/frontend/assets/${filename}`;
+    const pdfUrl = `../assets/${filename}`;
     
     // Create a temporary anchor element to trigger download
     const link = document.createElement('a');

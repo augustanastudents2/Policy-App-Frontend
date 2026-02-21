@@ -418,7 +418,7 @@ function toggleSection(sectionId) {
 function handleCardClick(item) {
     // Navigate to policy detail page with the policy_id (TEXT) as a query parameter
     // The API endpoint /api/policies/{policy_id} expects TEXT like "1.1.1"
-    window.location.href = `/frontend/public/policy-detail.html?id=${item.policyId || item.id}`;
+    window.location.href = `policy-detail.html?id=${item.policyId || item.id}`;
 }
 
 /**
@@ -545,7 +545,7 @@ async function updatePolicySidebar(currentPolicy) {
             const name = policy.name || policy.policyName || 'Untitled';
             const policyId = policy.policyId || policy.id;
             // Use policy_id (TEXT) for navigation since API endpoint expects TEXT
-            html += `<a href="/frontend/public/policy-detail.html?id=${policy.policyId}" class="sidebar-link-small">${policyId} - ${name}</a>`;
+            html += `<a href="policy-detail.html?id=${policy.policyId}" class="sidebar-link-small">${policyId} - ${name}</a>`;
         });
         html += `</div>`;
     });
