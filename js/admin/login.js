@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
         localStorage.setItem("accessToken", data.access_token);
   
-        window.location.href = "policies.html";
+        window.location.href = "/admin/policies.html";
   
       } catch (err) {
         alert("Login failed. Check credentials.");
