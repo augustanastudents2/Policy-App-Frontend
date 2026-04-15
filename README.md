@@ -69,7 +69,11 @@ Frontend for the **Augustana Students' Association (ASA) Policy App** — a web 
 
 This is **plain HTML/CSS/JS** — the browser cannot read `.env` or server env vars. There is no Node and no build step.
 
-**Edit `config.js`** at the project root and set `window.API_BASE_URL` to your backend URL. Every page loads `config.js` first, then your app scripts. When the URL changes, update that one line and redeploy.
+The API base URL is configured at the top of each JS file as:
+
+- `const API_BASE_URL = window.API_BASE_URL || "<backend url>"`
+
+If you want to override the backend URL without editing JS files, you can define `window.API_BASE_URL` yourself before loading the app scripts.
 
 ## Tech stack
 
