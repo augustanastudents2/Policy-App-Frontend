@@ -22,8 +22,16 @@ async function apiRequest(endpoint, options = {}) {
     
     const config = { ...defaultOptions, ...options };
     
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
     try {
-        const response = await fetch(url, config);
+        let response = await fetch(url, config);
+
+        // Render/Vercel proxy can occasionally return transient 502/503/504. Retry once.
+        if ([502, 503, 504].includes(response.status)) {
+            await sleep(600);
+            response = await fetch(url, config);
+        }
         
         if (!response.ok) {
             if (response.status === 404) {
@@ -107,13 +115,8 @@ function sortItemsByPolicyNumber(items) {
  */
 async function getApprovedPolicies(sectionName = null) {
     try {
-        // Build query string with optional section parameter (use full section name)
-        let endpoint = '/api/policies/approved';
-        if (sectionName) {
-            endpoint += `?section=${encodeURIComponent(sectionName)}`;
-        }
-        
-        const policies = await apiRequest(endpoint);
+        // Fetch once and filter client-side to avoid multiple parallel requests (reduces 502s).
+        const policies = await apiRequest('/api/policies/approved');
         console.log('Approved policies:', policies);
         // Map API field names to frontend field names
         const mappedPolicies = policies.map(policy => ({
@@ -130,8 +133,11 @@ async function getApprovedPolicies(sectionName = null) {
             createdBy: policy.created_by,
             updatedBy: policy.updated_by
         }));    
-        console.log('Mapped policies:', mappedPolicies);
-        return mappedPolicies;
+        const filtered =
+            sectionName ? mappedPolicies.filter((p) => p.section === sectionName) : mappedPolicies;
+
+        console.log('Mapped policies:', filtered);
+        return filtered;
     } catch (error) {
         console.error('Error fetching policies:', error);
         return [];
