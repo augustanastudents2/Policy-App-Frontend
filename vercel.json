@@ -1,18 +1,24 @@
 {
   "rewrites": [
-    { "source": "/api/:path*", "destination": "https://policy-app-backend.onrender.com/api/:path*" },
-
     { "source": "/", "destination": "/public/policies.html" },
 
     { "source": "/admin/:path*", "destination": "/public/admin/:path*" },
 
     { "source": "/policies.html", "destination": "/public/policies.html" },
     { "source": "/bylaws.html", "destination": "/public/bylaws.html" },
-    { "source": "/suggestions.html", "destination": "/public/suggestions.html" },
+    {
+      "source": "/suggestions.html",
+      "destination": "/public/suggestions.html"
+    },
     { "source": "/contact.html", "destination": "/public/contact.html" },
 
-    { "source": "/policy-detail.html", "destination": "/public/policy-detail.html" },
-    { "source": "/bylaw-detail.html", "destination": "/public/bylaw-detail.html" }
+    {
+      "source": "/policy-detail.html",
+      "destination": "/public/policy-detail.html"
+    },
+    {
+      "source": "/bylaw-detail.html",
+      "destination": "/public/bylaw-detail.html"
+    }
   ]
 }
-
