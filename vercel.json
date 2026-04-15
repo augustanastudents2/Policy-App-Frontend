@@ -1,5 +1,3 @@
 {
-  "rewrites": [
-    { "source": "/", "destination": "/public/policies.html" }
-  ]
+  "rewrites": [{ "source": "/", "destination": "public/policies.html" }]
 }
