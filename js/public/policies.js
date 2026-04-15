@@ -3,7 +3,8 @@
 // ============================================
 
 // API Configuration
-const API_BASE_URL = "https://policy-app-backend.onrender.com";
+// Use same-origin `/api/*` on Vercel (proxied to Render via `vercel.json`) to avoid CORS.
+const API_BASE_URL = "";
 
 /**
  * Makes an API request with error handling
