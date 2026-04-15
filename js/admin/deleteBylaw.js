@@ -7,7 +7,7 @@
  * @param {string} bylawTitle - The title of the bylaw for confirmation message.
  * @param {Function} onSuccess - Optional callback function to call after successful deletion (e.g., reload bylaws).
  */
-const API_BASE_URL = "https://policy-app-backend.onrender.com";
+const API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
 
 async function deleteBylaw(bylawId, bylawNumber, bylawTitle, onSuccess = null) {
     const token = localStorage.getItem("accessToken");

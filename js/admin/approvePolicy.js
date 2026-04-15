@@ -3,7 +3,7 @@
  * @param {string} policyId - Policy ID (TEXT like "1.1.1"), not UUID
  * @param {Function} onSuccess - Optional callback function to call after successful approval
  */
-const API_BASE_URL = "https://policy-app-backend.onrender.com";
+const API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
 
 async function approvePolicy(policyId, onSuccess = null) {
     const token = localStorage.getItem("accessToken");

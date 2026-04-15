@@ -1,6 +1,6 @@
 // Handle login form submission
-// Use same-origin `/api/*` on Vercel (proxied to Render via `vercel.json`) to avoid CORS.
-const API_BASE_URL = "";
+// API Configuration
+const API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
 
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("loginForm");

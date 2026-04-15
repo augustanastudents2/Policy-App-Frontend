@@ -1,5 +1,5 @@
 // Load and display bylaws from the API
-const API_BASE_URL = "https://policy-app-backend.onrender.com";
+const API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
 
 document.addEventListener("DOMContentLoaded", () => {
     const bylawsList = document.getElementById("bylawsList");
