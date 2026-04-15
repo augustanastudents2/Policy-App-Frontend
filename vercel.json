@@ -1,3 +1,25 @@
 {
-  "rewrites": [{ "source": "/", "destination": "/public/policies.html" }]
+  "rewrites": [
+    { "source": "/", "destination": "/public/policies.html" },
+
+    { "source": "/policies", "destination": "/public/policies.html" },
+    { "source": "/policies.html", "destination": "/public/policies.html" },
+
+    { "source": "/bylaws", "destination": "/public/bylaws.html" },
+    { "source": "/bylaws.html", "destination": "/public/bylaws.html" },
+
+    { "source": "/suggestions", "destination": "/public/suggestions.html" },
+    { "source": "/suggestions.html", "destination": "/public/suggestions.html" },
+
+    { "source": "/contact", "destination": "/public/contact.html" },
+    { "source": "/contact.html", "destination": "/public/contact.html" },
+
+    { "source": "/policy-detail", "destination": "/public/policy-detail.html" },
+    { "source": "/policy-detail.html", "destination": "/public/policy-detail.html" },
+
+    { "source": "/bylaw-detail", "destination": "/public/bylaw-detail.html" },
+    { "source": "/bylaw-detail.html", "destination": "/public/bylaw-detail.html" },
+
+    { "source": "/admin/:path*", "destination": "/admin/:path*" }
+  ]
 }
