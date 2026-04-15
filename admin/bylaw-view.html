@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Bylaw - ASA Policy App</title>
-    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="/css/admin.css">
 </head>
 <body class="admin-page">
     <header class="admin-header">
         <div class="header-content">
             <div class="logo">
-                <img src="../assets/asalogo.png" alt="ASA Logo">
+                <img src="/assets/asalogo.png" alt="ASA Logo">
             </div>
             <div class="header-actions">
                 <div class="search-bar">
@@ -42,7 +42,7 @@
                 <a href="master-dashboard.html" class="nav-item master-dashboard-link">
                     <span>Dashboard</span>
                 </a>
-                <a href="../public/policies.html" class="nav-item public-view-link">
+                <a href="/public/policies.html" class="nav-item public-view-link">
                     <span>Public View</span>
                 </a>
             </nav>
@@ -83,7 +83,6 @@
         </main>
     </div>
 
-    <!-- <script src="../js/admin/admin.js"></script> --> // To be removed
     <!-- Profile Side Panel -->
     <div id="profilePanel" class="profile-panel hidden">
         <div class="profile-panel-overlay" onclick="closeProfilePanel()"></div>
@@ -109,8 +108,9 @@
         </div>
     </div>
 
-    <script src="../js/admin/viewBylaw.js"></script>
-    <script src="../js/admin/profile.js"></script>
+    <script src="/config.js"></script>
+    <script src="/js/admin/viewBylaw.js"></script>
+    <script src="/js/admin/profile.js"></script>
 </body>
 </html>
 

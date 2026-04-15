@@ -70,3 +70,4 @@ function handleLogout() {
 window.toggleProfilePanel = toggleProfilePanel;
 window.closeProfilePanel = closeProfilePanel;
 window.handleLogout = handleLogout;
+

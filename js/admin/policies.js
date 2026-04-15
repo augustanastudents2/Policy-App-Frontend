@@ -295,3 +295,4 @@ window.toggleSection = toggleSection;
 window.viewPolicy = viewPolicy;
 window.editPolicy = editPolicy;
 // deletePolicy is exported from deletePolicy.js
+

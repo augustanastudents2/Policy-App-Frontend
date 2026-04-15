@@ -113,3 +113,4 @@ async function deletePolicy(policyId, policyName, onSuccess = null) {
 
 // Export function for global access
 window.deletePolicy = deletePolicy;
+
