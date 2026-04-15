@@ -6,6 +6,8 @@
  * @param {string} policyName - The name of the policy for confirmation message.
  * @param {Function} onSuccess - Optional callback function to call after successful deletion (e.g., reload policies).
  */
+const API_BASE_URL = "https://policy-app-backend.onrender.com";
+
 async function deletePolicy(policyId, policyName, onSuccess = null) {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -17,7 +19,7 @@ async function deletePolicy(policyId, policyName, onSuccess = null) {
     try {
         // Get current user info to check role
         const userResponse = await fetch(
-            `${window.API_BASE_URL}/api/auth/me`,
+            `${API_BASE_URL}/api/auth/me`,
             {
                 method: "GET",
                 headers: {
@@ -63,7 +65,7 @@ async function deletePolicy(policyId, policyName, onSuccess = null) {
     try {
         // Use policy_id (TEXT like "1.1.1") in the API endpoint
         const response = await fetch(
-            `${window.API_BASE_URL}/api/policies/${encodeURIComponent(policyId)}`,
+            `${API_BASE_URL}/api/policies/${encodeURIComponent(policyId)}`,
             {
                 method: "DELETE",
                 headers: {

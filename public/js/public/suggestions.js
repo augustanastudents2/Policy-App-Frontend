@@ -3,7 +3,7 @@
 // ============================================
 
 // API Configuration
-const API_BASE_URL = window.API_BASE_URL;
+const API_BASE_URL = "https://policy-app-backend.onrender.com";
 
 /**
  * Makes an API request with error handling

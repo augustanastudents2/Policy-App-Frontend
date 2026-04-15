@@ -3,6 +3,8 @@
  * @param {string} policyId - Policy ID (TEXT like "1.1.1"), not UUID
  * @param {Function} onSuccess - Optional callback function to call after successful approval
  */
+const API_BASE_URL = "https://policy-app-backend.onrender.com";
+
 async function approvePolicy(policyId, onSuccess = null) {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -17,7 +19,7 @@ async function approvePolicy(policyId, onSuccess = null) {
 
     try {
         const response = await fetch(
-            `${window.API_BASE_URL}/api/policies/${encodeURIComponent(policyId)}/approve`,
+            `${API_BASE_URL}/api/policies/${encodeURIComponent(policyId)}/approve`,
             {
                 method: "PUT",
                 headers: {

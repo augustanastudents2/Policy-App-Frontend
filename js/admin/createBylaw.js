@@ -1,4 +1,6 @@
 // Handle form submission for creating/updating a bylaw
+const API_BASE_URL = "https://policy-app-backend.onrender.com";
+
 document.addEventListener("DOMContentLoaded", async () => {
     const form = document.getElementById("bylawForm");
     if (!form) return;
@@ -40,7 +42,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         isEditMode = true;
         try {
             const response = await fetch(
-                `${window.API_BASE_URL}/api/bylaws`,
+                `${API_BASE_URL}/api/bylaws`,
                 {
                     method: "GET",
                     headers: {
@@ -131,7 +133,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (isEditMode && bylawId) {
             // Update existing bylaw (use UUID)
             response = await fetch(
-                `${window.API_BASE_URL}/api/bylaws/${bylawId}`,
+                `${API_BASE_URL}/api/bylaws/${bylawId}`,
                 {
                     method: "PUT",
                     headers: headers,
@@ -144,7 +146,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         } else {
             // Create new bylaw
             response = await fetch(
-                `${window.API_BASE_URL}/api/bylaws`,
+                `${API_BASE_URL}/api/bylaws`,
                 {
                     method: "POST",
                     headers: headers,

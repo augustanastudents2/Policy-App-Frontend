@@ -1,4 +1,6 @@
 // Handle login form submission
+const API_BASE_URL = "https://policy-app-backend.onrender.com";
+
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("loginForm");
     if (!form) return;
@@ -10,15 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const userPassword = document.getElementById("password").value;
   
       try {
-        if (!window.API_BASE_URL || typeof window.API_BASE_URL !== "string") {
-          throw new Error(
-            "API base URL is not configured. Ensure /config.js loads before this script."
-          );
-        }
-
-        const apiBaseUrl = window.API_BASE_URL.replace(/\/+$/, "");
         const response = await fetch(
-          `${apiBaseUrl}/api/auth/login`,
+          `${API_BASE_URL}/api/auth/login`,
           {
             method: "POST",
             headers: {

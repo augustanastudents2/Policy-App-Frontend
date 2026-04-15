@@ -3,6 +3,8 @@
  * @param {string} policyId - Policy ID (TEXT like "1.1.1"), not UUID
  * @param {Function} onSuccess - Optional callback function to call after successful disapproval
  */
+const API_BASE_URL = "https://policy-app-backend.onrender.com";
+
 async function disapprovePolicy(policyId, onSuccess = null) {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -23,7 +25,7 @@ async function disapprovePolicy(policyId, onSuccess = null) {
 
     try {
         const response = await fetch(
-            `${window.API_BASE_URL}/api/policies/${encodeURIComponent(policyId)}`,
+            `${API_BASE_URL}/api/policies/${encodeURIComponent(policyId)}`,
             {
                 method: "DELETE",
                 headers: {

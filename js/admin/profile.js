@@ -1,6 +1,6 @@
 // Profile Panel Functions
 // Handles user profile display and logout functionality
-const API_BASE_URL = window.API_BASE_URL;
+const API_BASE_URL = "https://policy-app-backend.onrender.com";
 
 async function toggleProfilePanel() {
     const panel = document.getElementById('profilePanel');
@@ -27,7 +27,7 @@ async function loadProfileData() {
             return;
         }
 
-        const response = await fetch(`${window.API_BASE_URL}/api/auth/me`, {
+        const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${accessToken}`,

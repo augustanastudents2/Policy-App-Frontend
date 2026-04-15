@@ -1,4 +1,6 @@
 // Load and display a single bylaw from the API
+const API_BASE_URL = "https://policy-app-backend.onrender.com";
+
 document.addEventListener("DOMContentLoaded", () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -33,7 +35,7 @@ async function loadBylawView(bylawId) {
     try {
         // Fetch all bylaws and find the one with matching UUID
         const response = await fetch(
-            `${window.API_BASE_URL}/api/bylaws`,
+            `${API_BASE_URL}/api/bylaws`,
             {
                 method: "GET",
                 headers: {

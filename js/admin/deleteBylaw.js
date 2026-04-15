@@ -7,6 +7,8 @@
  * @param {string} bylawTitle - The title of the bylaw for confirmation message.
  * @param {Function} onSuccess - Optional callback function to call after successful deletion (e.g., reload bylaws).
  */
+const API_BASE_URL = "https://policy-app-backend.onrender.com";
+
 async function deleteBylaw(bylawId, bylawNumber, bylawTitle, onSuccess = null) {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -18,7 +20,7 @@ async function deleteBylaw(bylawId, bylawNumber, bylawTitle, onSuccess = null) {
     try {
         // Get current user info to check role
         const userResponse = await fetch(
-            `${window.API_BASE_URL}/api/auth/me`,
+            `${API_BASE_URL}/api/auth/me`,
             {
                 method: "GET",
                 headers: {
@@ -64,7 +66,7 @@ async function deleteBylaw(bylawId, bylawNumber, bylawTitle, onSuccess = null) {
     try {
         // Use UUID in the API endpoint
         const response = await fetch(
-            `${window.API_BASE_URL}/api/bylaws/${encodeURIComponent(bylawId)}`,
+            `${API_BASE_URL}/api/bylaws/${encodeURIComponent(bylawId)}`,
             {
                 method: "DELETE",
                 headers: {

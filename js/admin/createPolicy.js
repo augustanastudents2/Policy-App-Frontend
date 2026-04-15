@@ -1,4 +1,6 @@
 // Handle form submission for creating/updating a policy
+const API_BASE_URL = "https://policy-app-backend.onrender.com";
+
 document.addEventListener("DOMContentLoaded", async () => {
     const form = document.getElementById("policyForm");
     if (!form) return;
@@ -41,7 +43,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         isEditMode = true;
         try {
             const response = await fetch(
-                `${window.API_BASE_URL}/api/policies`,
+                `${API_BASE_URL}/api/policies`,
                 {
                     method: "GET",
                     headers: {
@@ -138,7 +140,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (isEditMode && originalPolicyId) {
             // Update existing policy
             response = await fetch(
-                `${window.API_BASE_URL}/api/policies/${encodeURIComponent(originalPolicyId)}`,
+                `${API_BASE_URL}/api/policies/${encodeURIComponent(originalPolicyId)}`,
                 {
                     method: "PUT",
                     headers: headers,
@@ -152,7 +154,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         } else {
             // Create new policy
             response = await fetch(
-                `${window.API_BASE_URL}/api/policies`,
+                `${API_BASE_URL}/api/policies`,
                 {
                     method: "POST",
                     headers: headers,

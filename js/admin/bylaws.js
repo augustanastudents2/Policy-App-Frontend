@@ -1,4 +1,6 @@
 // Load and display bylaws from the API
+const API_BASE_URL = "https://policy-app-backend.onrender.com";
+
 document.addEventListener("DOMContentLoaded", () => {
     const bylawsList = document.getElementById("bylawsList");
     if (!bylawsList) return;
@@ -42,7 +44,7 @@ async function loadBylaws() {
         bylawsList.innerHTML = '<div class="empty-state"><div class="empty-state-text">Loading bylaws...</div></div>';
 
         const response = await fetch(
-            `${window.API_BASE_URL}/api/bylaws`,
+            `${API_BASE_URL}/api/bylaws`,
             {
                 method: "GET",
                 headers: {

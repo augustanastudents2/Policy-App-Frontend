@@ -1,4 +1,6 @@
 // Load and display suggestions from the API
+const API_BASE_URL = "https://policy-app-backend.onrender.com";
+
 document.addEventListener("DOMContentLoaded", () => {
     const suggestionsList = document.getElementById("suggestionsList");
     if (!suggestionsList) return;
@@ -42,7 +44,7 @@ async function loadSuggestions() {
         suggestionsList.innerHTML = '<div class="empty-state"><div class="empty-state-text">Loading suggestions...</div></div>';
 
         // Fetch suggestions (now includes policy/bylaw info in response)
-        const suggestionsResponse = await fetch(`${window.API_BASE_URL}/api/suggestions`, {
+        const suggestionsResponse = await fetch(`${API_BASE_URL}/api/suggestions`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

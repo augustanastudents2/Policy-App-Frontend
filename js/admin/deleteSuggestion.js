@@ -6,6 +6,8 @@
  * @param {string} suggestionPreview - A preview of the suggestion text for confirmation message.
  * @param {Function} onSuccess - Optional callback function to call after successful deletion (e.g., reload suggestions).
  */
+const API_BASE_URL = "https://policy-app-backend.onrender.com";
+
 async function deleteSuggestion(suggestionId, suggestionPreview, onSuccess = null) {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -28,7 +30,7 @@ async function deleteSuggestion(suggestionId, suggestionPreview, onSuccess = nul
     try {
         // Use suggestion_id (UUID) in the API endpoint
         const response = await fetch(
-            `${window.API_BASE_URL}/api/suggestions/${encodeURIComponent(suggestionId)}`,
+            `${API_BASE_URL}/api/suggestions/${encodeURIComponent(suggestionId)}`,
             {
                 method: "DELETE",
                 headers: {

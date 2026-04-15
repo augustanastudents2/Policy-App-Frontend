@@ -3,6 +3,8 @@
  * @param {string} bylawId - Bylaw UUID
  * @param {Function} onSuccess - Optional callback function to call after successful disapproval
  */
+const API_BASE_URL = "https://policy-app-backend.onrender.com";
+
 async function disapproveBylaw(bylawId, onSuccess = null) {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -23,7 +25,7 @@ async function disapproveBylaw(bylawId, onSuccess = null) {
 
     try {
         const response = await fetch(
-            `${window.API_BASE_URL}/api/bylaws/${bylawId}`,
+            `${API_BASE_URL}/api/bylaws/${bylawId}`,
             {
                 method: "DELETE",
                 headers: {

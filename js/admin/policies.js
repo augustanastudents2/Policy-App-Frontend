@@ -1,4 +1,6 @@
 // Load and display policies from the API
+const API_BASE_URL = "https://policy-app-backend.onrender.com";
+
 document.addEventListener("DOMContentLoaded", () => {
     const policiesList = document.getElementById("policiesList");
     if (!policiesList) return;
@@ -56,7 +58,7 @@ async function loadPolicies() {
         policiesList.innerHTML = '<div class="empty-state"><div class="empty-state-text">Loading policies...</div></div>';
 
         const response = await fetch(
-            `${window.API_BASE_URL}/api/policies`,
+            `${API_BASE_URL}/api/policies`,
             {
                 method: "GET",
                 headers: {
