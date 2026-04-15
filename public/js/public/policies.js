@@ -6,6 +6,11 @@
 // Use same-origin `/api/*` on Vercel (proxied to Render via `vercel.json`) to avoid CORS.
 const API_BASE_URL = "";
 
+// Cache approved policies to avoid multiple parallel requests (reduces transient 502s).
+let approvedPoliciesCachePromise = null;
+let approvedPoliciesCacheAtMs = 0;
+const APPROVED_POLICIES_CACHE_TTL_MS = 15_000;
+
 /**
  * Makes an API request with error handling
  * @param {string} endpoint - API endpoint (e.g., '/api/policies/approved')
@@ -115,8 +120,23 @@ function sortItemsByPolicyNumber(items) {
  */
 async function getApprovedPolicies(sectionName = null) {
     try {
-        // Fetch once and filter client-side to avoid multiple parallel requests (reduces 502s).
-        const policies = await apiRequest('/api/policies/approved');
+        const now = Date.now();
+        const cacheFresh =
+            approvedPoliciesCachePromise &&
+            now - approvedPoliciesCacheAtMs < APPROVED_POLICIES_CACHE_TTL_MS;
+
+        if (!cacheFresh) {
+            approvedPoliciesCacheAtMs = now;
+            approvedPoliciesCachePromise = apiRequest('/api/policies/approved')
+                .catch((err) => {
+                    // Allow retry on next call if this one failed.
+                    approvedPoliciesCachePromise = null;
+                    approvedPoliciesCacheAtMs = 0;
+                    throw err;
+                });
+        }
+
+        const policies = await approvedPoliciesCachePromise;
         console.log('Approved policies:', policies);
         // Map API field names to frontend field names
         const mappedPolicies = policies.map(policy => ({
