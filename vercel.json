@@ -4,6 +4,8 @@
 
     { "source": "/", "destination": "/public/policies.html" },
 
+    { "source": "/admin/:path*", "destination": "/public/admin/:path*" },
+
     { "source": "/policies.html", "destination": "/public/policies.html" },
     { "source": "/bylaws.html", "destination": "/public/bylaws.html" },
     { "source": "/suggestions.html", "destination": "/public/suggestions.html" },
