@@ -1,5 +1,5 @@
 // Load and display a single policy from the API
-const API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
+var API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
 
 document.addEventListener("DOMContentLoaded", () => {
     const token = localStorage.getItem("accessToken");

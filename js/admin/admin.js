@@ -1,7 +1,7 @@
 // ============================================
 // Profile Panel - Active Implementation
 // ============================================
-const API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
+var API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
 
 async function toggleProfilePanel() {
   const panel = document.getElementById("profilePanel");

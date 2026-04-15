@@ -6,7 +6,7 @@
  * @param {string} policyName - The name of the policy for confirmation message.
  * @param {Function} onSuccess - Optional callback function to call after successful deletion (e.g., reload policies).
  */
-const API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
+var API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
 
 async function deletePolicy(policyId, policyName, onSuccess = null) {
     const token = localStorage.getItem("accessToken");

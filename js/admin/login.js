@@ -1,6 +1,6 @@
 // Handle login form submission
 // API Configuration
-const API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
+var API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
 
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("loginForm");

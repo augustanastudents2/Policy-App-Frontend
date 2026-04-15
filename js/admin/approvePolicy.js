@@ -1,11 +1,12 @@
 /**
  * Approves a policy
- * @param {string} policyId - Policy ID (TEXT like "1.1.1"), not UUID
+ * @param {string} policyId - Policy UUID (preferred)
+ * @param {string} policyIdText - Policy ID (TEXT like "1.1.1") fallback
  * @param {Function} onSuccess - Optional callback function to call after successful approval
  */
-const API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
+var API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
 
-async function approvePolicy(policyId, onSuccess = null) {
+async function approvePolicy(policyId, policyIdText = "", onSuccess = null) {
     const token = localStorage.getItem("accessToken");
     if (!token) {
         alert("Please login to approve policies.");
@@ -17,17 +18,22 @@ async function approvePolicy(policyId, onSuccess = null) {
         return;
     }
 
-    try {
-        const response = await fetch(
-            `${API_BASE_URL}/api/policies/${encodeURIComponent(policyId)}/approve`,
-            {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                }
+    async function attemptApprove(id) {
+        return await fetch(`${API_BASE_URL}/api/policies/${encodeURIComponent(id)}/approve`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
             }
-        );
+        });
+    }
+
+    try {
+        // Try UUID first; if backend expects policy_id text, fallback.
+        let response = await attemptApprove(policyId);
+        if (response.status === 404 && policyIdText) {
+            response = await attemptApprove(policyIdText);
+        }
 
         if (!response.ok) {
             if (response.status === 401) {

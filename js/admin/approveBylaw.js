@@ -3,7 +3,7 @@
  * @param {string} bylawId - Bylaw UUID
  * @param {Function} onSuccess - Optional callback function to call after successful approval
  */
-const API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
+var API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
 
 async function approveBylaw(bylawId, onSuccess = null) {
     const token = localStorage.getItem("accessToken");

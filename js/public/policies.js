@@ -4,7 +4,7 @@
 
 // API Configuration
 // API Configuration
-const API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
+var API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
 
 // Cache approved policies to avoid multiple parallel requests (reduces transient 502s).
 let approvedPoliciesCachePromise = null;

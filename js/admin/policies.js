@@ -1,5 +1,5 @@
 // Load and display policies from the API
-const API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
+var API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
 
 document.addEventListener("DOMContentLoaded", () => {
     const policiesList = document.getElementById("policiesList");
@@ -95,12 +95,18 @@ async function loadPolicies() {
         const grouped = groupPoliciesBySection(policies);
         console.log("Grouped policies:", grouped);
 
-        // Render policies grouped by section in order: 1, 2, 3
+        // Render policies grouped by section with preferred order: 1, 2, 3, then anything else.
         let html = '';
-        const sectionOrder = ['3', '2', '1'];
+        const preferredSectionOrder = ['3', '2', '1'];
+        const allSectionKeys = Object.keys(grouped);
+        const preferredKeys = preferredSectionOrder.filter((k) => allSectionKeys.includes(k));
+        const otherKeys = allSectionKeys
+            .filter((k) => !preferredSectionOrder.includes(k))
+            .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+        const sectionRenderOrder = [...preferredKeys, ...otherKeys];
         let hasAnyPolicies = false;
         
-        for (const section of sectionOrder) {
+        for (const section of sectionRenderOrder) {
             const sectionPolicies = grouped[section];
             if (!sectionPolicies || sectionPolicies.length === 0) {
                 continue; // Skip empty sections
@@ -120,26 +126,7 @@ async function loadPolicies() {
             `;
         }
 
-        // If no policies were rendered, show all sections that have policies (even if not 1, 2, 3)
-        if (!hasAnyPolicies && Object.keys(grouped).length > 0) {
-            console.log("No policies in sections 1, 2, 3. Rendering all available sections:", Object.keys(grouped));
-            for (const [section, sectionPolicies] of Object.entries(grouped)) {
-                if (sectionPolicies && sectionPolicies.length > 0) {
-                    const sectionName = getSectionName(section);
-                    html += `
-                        <div class="policy-section expanded" data-section="${section}">
-                            <div class="policy-section-header" onclick="toggleSection('${section}')">
-                                <span class="policy-section-title">${sectionName}</span>
-                                <span class="policy-section-toggle">▼</span>
-                            </div>
-                            <div class="policy-items">
-                                ${sectionPolicies.map(policy => renderPolicyItem(policy)).join('')}
-                            </div>
-                        </div>
-                    `;
-                }
-            }
-        }
+        // (No separate fallback needed; we always attempt to render all section keys.)
 
         if (html === '') {
             policiesList.innerHTML = `

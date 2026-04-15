@@ -1,5 +1,5 @@
 // Load and display draft policies and bylaws for approval
-const API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
+var API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
 
 document.addEventListener("DOMContentLoaded", () => {
     const token = localStorage.getItem("accessToken");
@@ -149,10 +149,10 @@ function renderApprovalItem(item, type) {
     const preview = content ? (content.substring(0, 200) + (content.length > 200 ? '...' : '')) : 'No content';
     const createdDate = item.created_at ? new Date(item.created_at).toLocaleDateString() : 'N/A';
     const itemId = item.id; // UUID for both
-    const identifier = isPolicy ? item.policy_id : itemId; // For policies, use policy_id (TEXT) for approve endpoint
+    const policyIdText = isPolicy ? item.policy_id : null; // TEXT like "1.1.1"
 
     return `
-        <div class="approval-item" data-id="${itemId}" data-identifier="${identifier}" data-type="${type}">
+        <div class="approval-item" data-id="${itemId}" data-policy-id-text="${policyIdText || ''}" data-type="${type}">
             <div class="approval-item-header">
                 <div class="approval-item-info">
                     <h3 class="approval-item-title">${title || 'Untitled'}</h3>
@@ -170,8 +170,8 @@ function renderApprovalItem(item, type) {
                 <p>${preview.replace(/\n/g, ' ')}</p>
             </div>
             <div class="approval-item-footer">
-                <button class="btn btn-approve" onclick="approveItem('${identifier}', '${type}')">✓ Approve</button>
-                <button class="btn btn-disapprove" onclick="disapproveItem('${identifier}', '${type}')">✗ Disapprove</button>
+                <button class="btn btn-approve" onclick="approveItem('${itemId}', '${policyIdText || ''}', '${type}')">✓ Approve</button>
+                <button class="btn btn-disapprove" onclick="disapproveItem('${itemId}', '${policyIdText || ''}', '${type}')">✗ Disapprove</button>
             </div>
         </div>
     `;
@@ -252,14 +252,15 @@ function filterApprovals(query) {
 
 /**
  * Wrapper function for approveItem to handle both policies and bylaws
- * @param {string} identifier - Policy ID (TEXT) for policies, UUID for bylaws
+ * @param {string} id - UUID of the item
+ * @param {string} policyIdText - Policy ID (TEXT) for policies; empty for bylaws
  * @param {string} type - 'policy' or 'bylaw'
  */
-async function approveItem(identifier, type) {
+async function approveItem(id, policyIdText, type) {
     if (type === 'policy') {
         const approvePolicy = window.approvePolicy;
         if (approvePolicy) {
-            await approvePolicy(identifier, () => {
+            await approvePolicy(id, policyIdText, () => {
                 if (typeof loadPendingPolicies === 'function') {
                     loadPendingPolicies();
                 }
@@ -267,11 +268,13 @@ async function approveItem(identifier, type) {
                     loadPendingBylaws();
                 }
             });
+        } else {
+            console.error("approvePolicy function not found. Make sure approvePolicy.js is loaded.");
         }
     } else if (type === 'bylaw') {
         const approveBylaw = window.approveBylaw;
         if (approveBylaw) {
-            await approveBylaw(identifier, () => {
+            await approveBylaw(id, () => {
                 if (typeof loadPendingPolicies === 'function') {
                     loadPendingPolicies();
                 }
@@ -279,20 +282,24 @@ async function approveItem(identifier, type) {
                     loadPendingBylaws();
                 }
             });
+        } else {
+            console.error("approveBylaw function not found. Make sure approveBylaw.js is loaded.");
         }
     }
 }
 
 /**
  * Wrapper function for disapproveItem to handle both policies and bylaws
- * @param {string} identifier - Policy ID (TEXT) for policies, UUID for bylaws
+ * @param {string} id - UUID of the item
+ * @param {string} policyIdText - Policy ID (TEXT) for policies; empty for bylaws
  * @param {string} type - 'policy' or 'bylaw'
  */
-async function disapproveItem(identifier, type) {
+async function disapproveItem(id, policyIdText, type) {
     if (type === 'policy') {
         const disapprovePolicy = window.disapprovePolicy;
         if (disapprovePolicy) {
-            await disapprovePolicy(identifier, () => {
+            // Disapprove deletes by policy_id (TEXT), not UUID.
+            await disapprovePolicy(policyIdText, () => {
                 if (typeof loadPendingPolicies === 'function') {
                     loadPendingPolicies();
                 }
@@ -300,11 +307,13 @@ async function disapproveItem(identifier, type) {
                     loadPendingBylaws();
                 }
             });
+        } else {
+            console.error("disapprovePolicy function not found. Make sure disapprovePolicy.js is loaded.");
         }
     } else if (type === 'bylaw') {
         const disapproveBylaw = window.disapproveBylaw;
         if (disapproveBylaw) {
-            await disapproveBylaw(identifier, () => {
+            await disapproveBylaw(id, () => {
                 if (typeof loadPendingPolicies === 'function') {
                     loadPendingPolicies();
                 }
@@ -312,6 +321,8 @@ async function disapproveItem(identifier, type) {
                     loadPendingBylaws();
                 }
             });
+        } else {
+            console.error("disapproveBylaw function not found. Make sure disapproveBylaw.js is loaded.");
         }
     }
 }
