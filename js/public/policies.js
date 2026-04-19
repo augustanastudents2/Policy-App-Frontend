@@ -111,11 +111,11 @@ function sortItemsByPolicyNumber(items) {
 }
 
 /**
- * Retrieves approved policies from the API.
- * @param {string|null} sectionKey - Optional section key filter (e.g. "1"). If provided, only returns policies from that section.
+ * Retrieves all approved policies from the API.
+ * @param {string|null} sectionName - Optional section filter (full section name like "Organizational Identity & Values"). If provided, only returns policies from that section.
  * @returns {Promise<Array<Object>>} An array of approved policy objects.
  */
-async function getApprovedPolicies(sectionKey = null) {
+async function getApprovedPolicies(sectionName = null) {
     try {
         const now = Date.now();
         const cacheFresh =
@@ -133,11 +133,7 @@ async function getApprovedPolicies(sectionKey = null) {
                 });
         }
 
-        // If we're filtering by section, call the API with the query param so
-        // we correctly match backend storage (section key like "1", not name).
-        const policies = sectionKey
-            ? await apiRequest(`/api/policies/approved?section=${encodeURIComponent(sectionKey)}`)
-            : await approvedPoliciesCachePromise;
+        const policies = await approvedPoliciesCachePromise;
         console.log('Approved policies:', policies);
         // Map API field names to frontend field names
         const mappedPolicies = policies.map(policy => ({
@@ -155,8 +151,11 @@ async function getApprovedPolicies(sectionKey = null) {
             updatedBy: policy.updated_by
         }));
 
-        console.log('Mapped policies:', mappedPolicies);
-        return mappedPolicies;
+        const filtered =
+            sectionName ? mappedPolicies.filter((p) => p.section === sectionName) : mappedPolicies;
+
+        console.log('Mapped policies:', filtered);
+        return filtered;
     } catch (error) {
         console.error('Error fetching policies:', error);
         return [];
@@ -200,8 +199,8 @@ async function renderSections() {
         const sectionPromises = sections.map(async (section) => {
             try {
                 console.log(`Fetching policies for section: ${section.title}...`);
-                // Fetch policies for this specific section from API using section key
-                const policies = await getApprovedPolicies(section.sectionKey);
+                // Fetch policies for this specific section from API using full section name
+                const policies = await getApprovedPolicies(section.title);
                 console.log(`Section ${section.title} policies:`, policies);
                 
                 // Map policies to items format
