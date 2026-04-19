@@ -52,7 +52,7 @@ var API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.c
         }
     }
 
-    async function getSectionNameSyncPreferred(sectionKeyOrName) {
+    function getSectionNameSyncPreferred(sectionKeyOrName) {
         // For legacy synchronous call sites; prefer last fetched list if available.
         if (!sectionKeyOrName) return 'N/A';
         const match = lastSections.find((s) => String(s.key) === String(sectionKeyOrName));
