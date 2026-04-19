@@ -13,8 +13,14 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    // Load policies on page load
-    loadPolicies();
+    (async () => {
+        // Prefetch sections so section headers render with latest names
+        try {
+            await window.Sections?.fetchSections?.();
+        } catch {}
+        // Load policies on page load
+        loadPolicies();
+    })();
 
     // Handle search functionality
     const searchInput = document.getElementById("searchInput");
@@ -24,6 +30,17 @@ document.addEventListener("DOMContentLoaded", () => {
             filterPolicies(query);
         });
     }
+});
+
+// If sections were updated in another tab, reload section names and re-render list.
+window.addEventListener('storage', async (e) => {
+    if (e.key !== 'asa_sections_updated_at') return;
+    try {
+        await window.Sections?.fetchSections?.();
+    } catch {}
+    try {
+        await loadPolicies();
+    } catch {}
 });
 
 /**

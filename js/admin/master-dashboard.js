@@ -722,6 +722,7 @@ async function saveSectionName(sectionKey) {
             includeAll: true,
             includeEmptyOption: false
         });
+        window.Sections?.broadcastSectionsUpdated?.();
     } catch (error) {
         console.error('Error saving section:', error);
         showSectionsNotification(`Error updating section: ${error.message}`, 'error');
@@ -775,6 +776,7 @@ async function createSectionFromForm() {
             includeAll: true,
             includeEmptyOption: false
         });
+        window.Sections?.broadcastSectionsUpdated?.();
     } catch (error) {
         console.error('Error creating section:', error);
         showSectionsNotification(`Error creating section: ${error.message}`, 'error');

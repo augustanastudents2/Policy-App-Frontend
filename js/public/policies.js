@@ -111,11 +111,11 @@ function sortItemsByPolicyNumber(items) {
 }
 
 /**
- * Retrieves all approved policies from the API.
- * @param {string|null} sectionName - Optional section filter (full section name like "Organizational Identity & Values"). If provided, only returns policies from that section.
+ * Retrieves approved policies from the API.
+ * @param {string|null} sectionKey - Optional section key filter (e.g. "1"). If provided, only returns policies from that section.
  * @returns {Promise<Array<Object>>} An array of approved policy objects.
  */
-async function getApprovedPolicies(sectionName = null) {
+async function getApprovedPolicies(sectionKey = null) {
     try {
         const now = Date.now();
         const cacheFresh =
@@ -133,7 +133,11 @@ async function getApprovedPolicies(sectionName = null) {
                 });
         }
 
-        const policies = await approvedPoliciesCachePromise;
+        // If we're filtering by section, call the API with the query param so
+        // we correctly match backend storage (section key like "1", not name).
+        const policies = sectionKey
+            ? await apiRequest(`/api/policies/approved?section=${encodeURIComponent(sectionKey)}`)
+            : await approvedPoliciesCachePromise;
         console.log('Approved policies:', policies);
         // Map API field names to frontend field names
         const mappedPolicies = policies.map(policy => ({
@@ -149,12 +153,10 @@ async function getApprovedPolicies(sectionName = null) {
             updatedAt: policy.updated_at,
             createdBy: policy.created_by,
             updatedBy: policy.updated_by
-        }));    
-        const filtered =
-            sectionName ? mappedPolicies.filter((p) => p.section === sectionName) : mappedPolicies;
+        }));
 
-        console.log('Mapped policies:', filtered);
-        return filtered;
+        console.log('Mapped policies:', mappedPolicies);
+        return mappedPolicies;
     } catch (error) {
         console.error('Error fetching policies:', error);
         return [];
@@ -198,8 +200,8 @@ async function renderSections() {
         const sectionPromises = sections.map(async (section) => {
             try {
                 console.log(`Fetching policies for section: ${section.title}...`);
-                // Fetch policies for this specific section from API using full section name
-                const policies = await getApprovedPolicies(section.title);
+                // Fetch policies for this specific section from API using section key
+                const policies = await getApprovedPolicies(section.sectionKey);
                 console.log(`Section ${section.title} policies:`, policies);
                 
                 // Map policies to items format
@@ -896,6 +898,19 @@ document.addEventListener('DOMContentLoaded', async function() {
     } catch (e) {
         console.warn('Failed to prefetch sections:', e);
     }
+
+    // If sections were updated in another tab, refresh section names + rerender.
+    window.addEventListener('storage', async (e) => {
+        if (e.key !== 'asa_sections_updated_at') return;
+        try {
+            await window.Sections?.fetchSections?.();
+        } catch {}
+        try {
+            if (document.getElementById('sectionsContainer')) {
+                await renderSections();
+            }
+        } catch {}
+    });
 
     const searchInput = document.getElementById('searchInput');
     const sectionsContainer = document.getElementById('sectionsContainer');

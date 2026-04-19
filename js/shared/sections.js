@@ -97,7 +97,12 @@ var API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.c
         fetchSections,
         getSectionName,
         getSectionNameSyncPreferred,
-        populateSectionSelect
+        populateSectionSelect,
+        broadcastSectionsUpdated: function () {
+            try {
+                localStorage.setItem('asa_sections_updated_at', String(Date.now()));
+            } catch {}
+        }
     };
 })();
 
