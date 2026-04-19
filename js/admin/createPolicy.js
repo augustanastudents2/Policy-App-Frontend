@@ -5,6 +5,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     const form = document.getElementById("policyForm");
     if (!form) return;
 
+    // Populate sections dropdown dynamically (falls back to existing HTML options if API unavailable)
+    try {
+        await window.Sections?.populateSectionSelect(document.getElementById("section"), {
+            includeAll: false,
+            includeEmptyOption: true
+        });
+    } catch (e) {
+        console.warn("Failed to populate sections dropdown:", e);
+    }
+
     const token = localStorage.getItem("accessToken");
     if (!token) {
         // Not logged in, redirect to login page
@@ -69,7 +79,20 @@ document.addEventListener("DOMContentLoaded", async () => {
             // Pre-populate form fields
             document.getElementById("policyId").value = policy.policy_id || '';
             document.getElementById("policyName").value = policy.policy_name || '';
-            document.getElementById("section").value = policy.section || '';
+            // Section may be stored as key ("1") or legacy name; try both.
+            const sectionSelect = document.getElementById("section");
+            if (sectionSelect) {
+                const raw = policy.section || '';
+                sectionSelect.value = raw;
+                if (!sectionSelect.value && raw) {
+                    // If options are keys, attempt mapping by name -> key using sections list
+                    try {
+                        const sections = await window.Sections?.fetchSections?.();
+                        const match = (sections || []).find((s) => s.name === raw);
+                        if (match) sectionSelect.value = String(match.key);
+                    } catch {}
+                }
+            }
             // Set content in Quill editor
             if (policy.policy_content) {
                 quillEditor.root.innerHTML = policy.policy_content;

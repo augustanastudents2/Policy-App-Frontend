@@ -32,12 +32,9 @@ document.addEventListener("DOMContentLoaded", () => {
  * @returns {string} The formatted section name.
  */
 function getSectionName(section) {
-    const sectionNames = {
-        '1': 'Organizational Identity & Values',
-        '2': 'Governance & Elections',
-        '3': 'Operations, Staff & Finance'
-    };
-    return sectionNames[section] || section;
+    return window.Sections?.getSectionNameSyncPreferred
+        ? window.Sections.getSectionNameSyncPreferred(section)
+        : (section || 'N/A');
 }
 
 /**

@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     await checkUserRole();
     loadMasterDashboard();
     await loadAdminMembers();
+    await initSectionsManagement();
     
     // Update password preview when name changes
     document.getElementById('memberName')?.addEventListener('input', updatePasswordPreview);
@@ -105,6 +106,19 @@ function showNotification(message, type = 'info') {
     notification.classList.remove('hidden');
     
     // Auto-hide after 5 seconds
+    setTimeout(() => {
+        notification.classList.add('hidden');
+    }, 5000);
+}
+
+function showSectionsNotification(message, type = 'info') {
+    const notification = document.getElementById('sectionsNotification');
+    if (!notification) return;
+
+    notification.textContent = message;
+    notification.className = `notification ${type}`;
+    notification.classList.remove('hidden');
+
     setTimeout(() => {
         notification.classList.add('hidden');
     }, 5000);
@@ -415,12 +429,10 @@ async function getPolicyReviews(policyId) {
 }
 
 function getSectionName(section) {
-    const sectionNames = {
-        '1': 'Organizational Identity & Values',
-        '2': 'Governance & Elections',
-        '3': 'Operations, Staff & Finance'
-    };
-    return sectionNames[section] || section || 'N/A';
+    // Prefer dynamic section names if available (sync fallback for table rendering)
+    return window.Sections?.getSectionNameSyncPreferred
+        ? window.Sections.getSectionNameSyncPreferred(section)
+        : (section || 'N/A');
 }
 
 async function loadMasterDashboard() {
@@ -580,6 +592,195 @@ async function resetAllReviews() {
     }
 }
 
+async function initSectionsManagement() {
+    // Populate the section filter dropdown dynamically
+    try {
+        await window.Sections?.populateSectionSelect(document.getElementById('sectionFilter'), {
+            includeAll: true,
+            includeEmptyOption: false
+        });
+    } catch (e) {
+        console.warn('Failed to populate section filter:', e);
+    }
+
+    // Load list
+    await loadSectionsList();
+
+    // Wire create form
+    const form = document.getElementById('sectionsCreateForm');
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await createSectionFromForm();
+        });
+    }
+}
+
+async function loadSectionsList() {
+    const container = document.getElementById('sectionsList');
+    if (!container) return;
+
+    container.innerHTML = '<p class="empty-message">Loading sections...</p>';
+    try {
+        const sections = await window.Sections?.fetchSections?.();
+        if (!sections || sections.length === 0) {
+            container.innerHTML = '<p class="empty-message">No sections found.</p>';
+            return;
+        }
+
+        const rows = sections
+            .slice()
+            .sort((a, b) => String(a.key).localeCompare(String(b.key), undefined, { numeric: true }))
+            .map((s) => {
+                return `
+                    <div class="policy-item" data-section-key="${String(s.key)}">
+                        <div class="policy-item-header">
+                            <div class="policy-item-title">Section ${String(s.key)}</div>
+                            <div class="policy-item-actions">
+                                <button class="action-btn edit" onclick="enableSectionEdit('${String(s.key)}')" title="Edit">✏️</button>
+                                <button class="action-btn view" onclick="saveSectionName('${String(s.key)}')" title="Save">💾</button>
+                            </div>
+                        </div>
+                        <div class="policy-item-meta" style="gap:12px; align-items:center;">
+                            <div style="flex:1;">
+                                <input id="section-name-${String(s.key)}" type="text" value="${escapeHtml(s.name || '')}" style="width:100%;" disabled>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            })
+            .join('');
+
+        container.innerHTML = rows;
+    } catch (error) {
+        console.error('Error loading sections:', error);
+        container.innerHTML = `<p class="empty-message">Error loading sections: ${error.message}</p>`;
+    }
+}
+
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function enableSectionEdit(sectionKey) {
+    const input = document.getElementById(`section-name-${sectionKey}`);
+    if (input) {
+        input.disabled = false;
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+    }
+}
+
+async function saveSectionName(sectionKey) {
+    // Check if user is admin
+    if (currentUserRole === null) {
+        await checkUserRole();
+    }
+    if (currentUserRole !== 'admin') {
+        showSectionsNotification('Only master admin can edit section names.', 'error');
+        await loadSectionsList();
+        return;
+    }
+
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+        showSectionsNotification('Please login to edit sections.', 'error');
+        return;
+    }
+
+    const input = document.getElementById(`section-name-${sectionKey}`);
+    const newName = input?.value?.trim();
+    if (!newName) {
+        showSectionsNotification('Section name cannot be empty.', 'error');
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/sections/${encodeURIComponent(sectionKey)}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ name: newName })
+        });
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({ detail: 'Failed to update section' }));
+            throw new Error(err.detail || `Failed to update section: ${res.status}`);
+        }
+
+        showSectionsNotification(`Section ${sectionKey} updated.`, 'success');
+        // bust cache by reloading page list
+        await loadSectionsList();
+        await window.Sections?.populateSectionSelect(document.getElementById('sectionFilter'), {
+            includeAll: true,
+            includeEmptyOption: false
+        });
+    } catch (error) {
+        console.error('Error saving section:', error);
+        showSectionsNotification(`Error updating section: ${error.message}`, 'error');
+    } finally {
+        if (input) input.disabled = true;
+    }
+}
+
+async function createSectionFromForm() {
+    // Check if user is admin
+    if (currentUserRole === null) {
+        await checkUserRole();
+    }
+    if (currentUserRole !== 'admin') {
+        showSectionsNotification('Only master admin can add new sections.', 'error');
+        return;
+    }
+
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+        showSectionsNotification('Please login to add sections.', 'error');
+        return;
+    }
+
+    const key = document.getElementById('newSectionKey')?.value?.trim();
+    const name = document.getElementById('newSectionName')?.value?.trim();
+    if (!key || !name) {
+        showSectionsNotification('Please provide a key and name.', 'error');
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/sections`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ key, name })
+        });
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({ detail: 'Failed to create section' }));
+            throw new Error(err.detail || `Failed to create section: ${res.status}`);
+        }
+
+        showSectionsNotification('Section created.', 'success');
+        document.getElementById('sectionsCreateForm')?.reset();
+        await loadSectionsList();
+        await window.Sections?.populateSectionSelect(document.getElementById('sectionFilter'), {
+            includeAll: true,
+            includeEmptyOption: false
+        });
+    } catch (error) {
+        console.error('Error creating section:', error);
+        showSectionsNotification(`Error creating section: ${error.message}`, 'error');
+    }
+}
+
 // Export functions to window object for inline event handlers
 window.showAddMemberForm = showAddMemberForm;
 window.hideAddMemberForm = hideAddMemberForm;
@@ -587,3 +788,5 @@ window.handleMemberSubmit = handleMemberSubmit;
 window.updateUserRole = updateUserRole;
 window.deleteUser = deleteUser;
 window.resetAllReviews = resetAllReviews;
+window.enableSectionEdit = enableSectionEdit;
+window.saveSectionName = saveSectionName;

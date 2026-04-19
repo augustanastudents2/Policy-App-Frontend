@@ -120,19 +120,46 @@
                 <div class="review-summary-filters">
                     <select id="sectionFilter" class="filter-select" aria-label="Filter by section">
                         <option value="all">All Sections</option>
-                        <option value="1">Organizational Identity & Values</option>
-                        <option value="2">Governance & Elections</option>
-                        <option value="3">Operations, Staff & Finance</option>
                     </select>
                 </div>
                 <div class="review-summary-table" id="reviewSummaryTable">
                     <!-- Review summary will be loaded here -->
                 </div>
             </div>
+
+            <div class="admin-members-section">
+                <div class="section-header">
+                    <h2>Section Management</h2>
+                </div>
+
+                <div id="sectionsNotification" class="notification hidden"></div>
+
+                <div class="member-form" id="addSectionForm">
+                    <h3>Add New Section</h3>
+                    <form id="sectionsCreateForm">
+                        <div class="form-group">
+                            <label for="newSectionKey">Section Key</label>
+                            <input type="text" id="newSectionKey" placeholder="e.g., 4" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newSectionName">Section Name</label>
+                            <input type="text" id="newSectionName" placeholder="e.g., Communications" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Add Section</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="members-list" id="sectionsList">
+                    <!-- Sections will be loaded here -->
+                </div>
+            </div>
         </main>
     </div>
 
     <script src="/js/admin/admin.js"></script>
+    <script src="/js/shared/sections.js"></script>
     <script src="/js/admin/master-dashboard.js"></script>
     <!-- Profile Side Panel -->
     <div id="profilePanel" class="profile-panel hidden">

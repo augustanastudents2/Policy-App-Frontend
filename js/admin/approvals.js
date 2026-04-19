@@ -183,15 +183,9 @@ function renderApprovalItem(item, type) {
  * @returns {string} The formatted section name
  */
 function getSectionName(section) {
-    const sectionNames = {
-        '1': 'Organizational Identity & Values',
-        '2': 'Governance & Elections',
-        '3': 'Operations, Staff & Finance',
-        'Organizational Identity & Values': 'Organizational Identity & Values',
-        'Governance & Elections': 'Governance & Elections',
-        'Operations, Staff & Finance': 'Operations, Staff & Finance'
-    };
-    return sectionNames[section] || `Section ${section}`;
+    return window.Sections?.getSectionNameSyncPreferred
+        ? window.Sections.getSectionNameSyncPreferred(section)
+        : `Section ${section}`;
 }
 
 /**
