@@ -112,10 +112,10 @@ function sortItemsByPolicyNumber(items) {
 
 /**
  * Retrieves all approved policies from the API.
- * @param {string|null} sectionName - Optional section filter (full section name like "Organizational Identity & Values"). If provided, only returns policies from that section.
+ * Note: policies.section should store the section key (e.g. "1", "2", "3").
  * @returns {Promise<Array<Object>>} An array of approved policy objects.
  */
-async function getApprovedPolicies(sectionName = null) {
+async function getApprovedPolicies() {
     try {
         const now = Date.now();
         const cacheFresh =
@@ -150,12 +150,8 @@ async function getApprovedPolicies(sectionName = null) {
             createdBy: policy.created_by,
             updatedBy: policy.updated_by
         }));
-
-        const filtered =
-            sectionName ? mappedPolicies.filter((p) => p.section === sectionName) : mappedPolicies;
-
-        console.log('Mapped policies:', filtered);
-        return filtered;
+        console.log('Mapped policies:', mappedPolicies);
+        return mappedPolicies;
     } catch (error) {
         console.error('Error fetching policies:', error);
         return [];
@@ -184,147 +180,91 @@ async function renderSections() {
     container.innerHTML = '';
     console.log('Starting renderSections...');
 
-    // Define sections to render
-    const sections = [
-        { id: 1, title: getSectionName('1'), sectionKey: '1' },
-        { id: 2, title: getSectionName('2'), sectionKey: '2' },
-        { id: 3, title: getSectionName('3'), sectionKey: '3' }
-    ];
-
-    let sectionsWithItems = [];
-    let useFallback = false;
-
     try {
-        // Try fetching policies for each section in parallel
-        const sectionPromises = sections.map(async (section) => {
-            try {
-                console.log(`Fetching policies for section: ${section.title}...`);
-                // Fetch policies for this specific section from API using full section name
-                const policies = await getApprovedPolicies(section.title);
-                console.log(`Section ${section.title} policies:`, policies);
-                
-                // Map policies to items format
-                const items = policies.map(policy => ({
-                    id: policy.id,
-                    policyId: policy.policyId || policy.id,
-                    name: policy.name || policy.policyName || 'Untitled',
-                    section: section.sectionKey,
-                    sectionName: section.title
-                }));
+        // Load latest sections list (for display names + ordering)
+        let sectionsList = [];
+        try {
+            sectionsList = await window.Sections?.fetchSections?.();
+        } catch {}
 
-                // Apply client-side search filter if search term exists
-                let filteredItems = items;
-                if (searchTerm !== '') {
-                    filteredItems = items.filter(item => 
-                        (item.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        (item.policyId || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        (item.sectionName || '').toLowerCase().includes(searchTerm.toLowerCase())
-                    );
-                }
+        // Fetch all approved policies once
+        const allPolicies = await getApprovedPolicies();
 
-                // Sort items by policy number in ascending order
-                filteredItems = sortItemsByPolicyNumber(filteredItems);
-
-                return {
-                    ...section,
-                    items: filteredItems
-                };
-            } catch (error) {
-                console.error(`Error fetching section ${section.title}:`, error);
-                useFallback = true;
-                return {
-                    ...section,
-                    items: []
-                };
-            }
+        // Group policies by section key
+        const grouped = {};
+        allPolicies.forEach((policy) => {
+            const key = policy.section == null ? '1' : String(policy.section);
+            if (!grouped[key]) grouped[key] = [];
+            grouped[key].push(policy);
         });
 
-        // Wait for all sections to be fetched
-        sectionsWithItems = await Promise.all(sectionPromises);
-        console.log('All sections fetched:', sectionsWithItems);
-    } catch (error) {
-        console.error('Error in section-based fetch, falling back to fetch all:', error);
-        useFallback = true;
-    }
+        // Sort policies within each section
+        Object.keys(grouped).forEach((k) => {
+            grouped[k] = sortItemsByPolicyNumber(
+                grouped[k].map((p) => ({ ...p, policyId: p.policyId || p.id }))
+            );
+        });
 
-    // Fallback: If section-based fetching had errors, try fetching all policies
-    if (useFallback) {
-        console.log('Using fallback: fetching all policies...');
-        try {
-            const allPolicies = await getApprovedPolicies();
-            console.log('All policies fetched:', allPolicies);
-            
-            // Group policies by section
-            const sectionsMap = {};
-            sections.forEach(section => {
-                sectionsMap[section.sectionKey] = {
-                    ...section,
-                    items: []
-                };
-            });
+        const sectionKeysFromApi = (sectionsList || []).map((s) => String(s.key));
+        const sectionKeysFromPolicies = Object.keys(grouped);
+        const mergedKeys = Array.from(new Set([...sectionKeysFromApi, ...sectionKeysFromPolicies]));
 
-            allPolicies.forEach(policy => {
-                const section = policy.section || '1';
-                if (sectionsMap[section]) {
-                    sectionsMap[section].items.push({
-                        id: policy.id,
-                        policyId: policy.policyId || policy.id,
-                        name: policy.name || policy.policyName || 'Untitled',
-                        section: section,
-                        sectionName: getSectionName(section)
-                    });
-                }
-            });
+        const preferredOrder = ['1', '2', '3'];
+        const preferredKeys = preferredOrder.filter((k) => mergedKeys.includes(k));
+        const otherKeys = mergedKeys
+            .filter((k) => !preferredOrder.includes(k))
+            .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
 
-            // Apply search filter and sort
-            sectionsWithItems = Object.values(sectionsMap).map(section => {
-                let filteredItems = section.items;
-                if (searchTerm !== '') {
-                    filteredItems = section.items.filter(item => 
-                        (item.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        (item.policyId || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        (item.sectionName || '').toLowerCase().includes(searchTerm.toLowerCase())
-                    );
-                }
-                // Sort items by policy number in ascending order
-                filteredItems = sortItemsByPolicyNumber(filteredItems);
-                
-                return {
-                    ...section,
-                    items: filteredItems
-                };
-            });
-        } catch (error) {
-            console.error('Error in fallback fetch:', error);
-        }
-    }
-    
-    // Render each section
-    sectionsWithItems.forEach(section => {
-        // Show section if it has items, or if search is empty (to show empty sections)
-        const shouldShow = section.items.length > 0 || searchTerm === '';
-        console.log(`Section ${section.title}: ${section.items.length} items, shouldShow: ${shouldShow}`);
-        
-        if (shouldShow) {
+        const sectionRenderOrder = [...preferredKeys, ...otherKeys];
+
+        const sectionsWithItems = sectionRenderOrder.map((key) => {
+            const title = getSectionName(key);
+            const itemsRaw = grouped[key] || [];
+
+            const items = itemsRaw.map((policy) => ({
+                id: policy.id,
+                policyId: policy.policyId || policy.id,
+                name: policy.name || policy.policyName || 'Untitled',
+                section: key,
+                sectionName: title
+            }));
+
+            let filteredItems = items;
+            if (searchTerm !== '') {
+                const q = searchTerm.toLowerCase();
+                filteredItems = items.filter(item =>
+                    (item.name || '').toLowerCase().includes(q) ||
+                    (item.policyId || '').toLowerCase().includes(q) ||
+                    (item.sectionName || '').toLowerCase().includes(q)
+                );
+            }
+
+            filteredItems = sortItemsByPolicyNumber(filteredItems);
+
+            return { id: Number(key) || key, title, sectionKey: key, items: filteredItems };
+        });
+
+        // Render each section (show even if empty; match admin behavior)
+        sectionsWithItems.forEach(section => {
             const sectionEl = createSectionElement(section, section.items);
             container.appendChild(sectionEl);
-        }
-    });
-
-    if (container.children.length === 0) {
-        container.innerHTML = '<div class="no-results">No results found</div>';
-        console.log('No sections rendered - showing no results message');
-    } else {
-        console.log(`Rendered ${container.children.length} sections`);
-    }
-    
-    // Update current policy IDs for change detection
-    currentPolicyIds.clear();
-    sectionsWithItems.forEach(section => {
-        section.items.forEach(item => {
-            currentPolicyIds.add(item.policyId || item.id);
         });
-    });
+
+        if (container.children.length === 0) {
+            container.innerHTML = '<div class="no-results">No results found</div>';
+        }
+
+        // Update current policy IDs for change detection
+        currentPolicyIds.clear();
+        sectionsWithItems.forEach(section => {
+            section.items.forEach(item => {
+                currentPolicyIds.add(item.policyId || item.id);
+            });
+        });
+        return;
+    } catch (error) {
+        console.error('Error rendering sections:', error);
+    }
 }
 
 /**
