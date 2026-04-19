@@ -94,38 +94,31 @@ async function loadPolicies() {
         const policies = await response.json();
         console.log("Policies loaded:", policies);
 
-        if (policies.length === 0) {
-            policiesList.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-state-icon">📄</div>
-                    <div class="empty-state-text">No policies found</div>
-                    <div class="empty-state-subtext">Create your first policy to get started</div>
-                </div>
-            `;
-            return;
-        }
-
         // Group policies by section
-        const grouped = groupPoliciesBySection(policies);
+        const grouped = groupPoliciesBySection(policies || []);
         console.log("Grouped policies:", grouped);
+
+        // Prefer rendering based on sections list so new/empty sections still show.
+        let sectionsList = [];
+        try {
+            sectionsList = await window.Sections?.fetchSections?.();
+        } catch {}
+
+        const sectionKeysFromPolicies = Object.keys(grouped);
+        const sectionKeysFromApi = (sectionsList || []).map((s) => String(s.key));
+        const mergedKeys = Array.from(new Set([...sectionKeysFromApi, ...sectionKeysFromPolicies]));
 
         // Render policies grouped by section with preferred order: 1, 2, 3, then anything else.
         let html = '';
-        const preferredSectionOrder = ['3', '2', '1'];
-        const allSectionKeys = Object.keys(grouped);
-        const preferredKeys = preferredSectionOrder.filter((k) => allSectionKeys.includes(k));
-        const otherKeys = allSectionKeys
+        const preferredSectionOrder = ['1', '2', '3'];
+        const preferredKeys = preferredSectionOrder.filter((k) => mergedKeys.includes(k));
+        const otherKeys = mergedKeys
             .filter((k) => !preferredSectionOrder.includes(k))
             .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
         const sectionRenderOrder = [...preferredKeys, ...otherKeys];
-        let hasAnyPolicies = false;
         
         for (const section of sectionRenderOrder) {
-            const sectionPolicies = grouped[section];
-            if (!sectionPolicies || sectionPolicies.length === 0) {
-                continue; // Skip empty sections
-            }
-            hasAnyPolicies = true;
+            const sectionPolicies = grouped[section] || [];
             const sectionName = getSectionName(section);
             html += `
                 <div class="policy-section expanded" data-section="${section}">
@@ -134,7 +127,11 @@ async function loadPolicies() {
                         <span class="policy-section-toggle">▼</span>
                     </div>
                     <div class="policy-items">
-                        ${sectionPolicies.map(policy => renderPolicyItem(policy)).join('')}
+                        ${
+                            sectionPolicies.length > 0
+                                ? sectionPolicies.map(policy => renderPolicyItem(policy)).join('')
+                                : '<div class="empty-state"><div class="empty-state-text">No policies in this section</div></div>'
+                        }
                     </div>
                 </div>
             `;
@@ -142,7 +139,7 @@ async function loadPolicies() {
 
         // (No separate fallback needed; we always attempt to render all section keys.)
 
-        if (html === '') {
+        if (!policies || policies.length === 0) {
             policiesList.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">📄</div>
