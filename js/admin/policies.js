@@ -1,6 +1,8 @@
 // Load and display policies from the API
 var API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.com";
 
+let policiesPollingInterval = null;
+
 document.addEventListener("DOMContentLoaded", () => {
     const policiesList = document.getElementById("policiesList");
     if (!policiesList) return;
@@ -19,7 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
             await window.Sections?.fetchSections?.();
         } catch {}
         // Load policies on page load
-        loadPolicies();
+        await loadPolicies();
+        startPoliciesPolling(30);
     })();
 
     // Handle search functionality
@@ -32,6 +35,46 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+function startPoliciesPolling(intervalSeconds = 30) {
+    // Clear any existing polling
+    if (policiesPollingInterval) {
+        clearInterval(policiesPollingInterval);
+        policiesPollingInterval = null;
+    }
+
+    const policiesList = document.getElementById("policiesList");
+    if (!policiesList) return;
+
+    const poll = async () => {
+        // Only poll when page is visible to avoid wasted work
+        if (document.hidden) return;
+        try {
+            await loadPolicies({ silent: true });
+        } catch (e) {
+            // Silent failures during polling; keep UI usable
+            console.warn("Policy polling failed:", e);
+        }
+    };
+
+    // Poll periodically
+    policiesPollingInterval = setInterval(poll, intervalSeconds * 1000);
+
+    // Pause/resume when tab visibility changes
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) return;
+        // Refresh once when returning
+        poll();
+    });
+
+    // Cleanup
+    window.addEventListener("beforeunload", () => {
+        if (policiesPollingInterval) {
+            clearInterval(policiesPollingInterval);
+            policiesPollingInterval = null;
+        }
+    });
+}
+
 // If sections were updated in another tab, reload section names and re-render list.
 window.addEventListener('storage', async (e) => {
     if (e.key !== 'asa_sections_updated_at') return;
@@ -39,7 +82,7 @@ window.addEventListener('storage', async (e) => {
         await window.Sections?.fetchSections?.();
     } catch {}
     try {
-        await loadPolicies();
+        await loadPolicies({ silent: true });
     } catch {}
 });
 
@@ -68,8 +111,15 @@ async function loadPolicies() {
     }
 
     try {
+        // Preserve current search query across refreshes
+        const searchInput = document.getElementById("searchInput");
+        const currentQuery = (searchInput?.value || "").toLowerCase();
+
         // Show loading state
-        policiesList.innerHTML = '<div class="empty-state"><div class="empty-state-text">Loading policies...</div></div>';
+        const silent = arguments?.[0]?.silent === true;
+        if (!silent) {
+            policiesList.innerHTML = '<div class="empty-state"><div class="empty-state-text">Loading policies...</div></div>';
+        }
 
         const response = await fetch(
             `${API_BASE_URL}/api/policies`,
@@ -149,6 +199,11 @@ async function loadPolicies() {
             `;
         } else {
             policiesList.innerHTML = html;
+        }
+
+        // Re-apply search filter after re-render
+        if (currentQuery) {
+            filterPolicies(currentQuery);
         }
     } catch (err) {
         console.error("Error loading policies:", err);
