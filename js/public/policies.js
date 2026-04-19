@@ -69,12 +69,9 @@ async function apiRequest(endpoint, options = {}) {
  * @returns {string} The formatted section name, or "Section {number}" if not found.
  */
 function getSectionName(section) {
-    const sectionNames = {
-        '1': 'Organizational Identity & Values',
-        '2': 'Governance & Elections',
-        '3': 'Operations, Staff & Finance'
-    };
-    return sectionNames[section] || `Section ${section}`;
+    return window.Sections?.getSectionNameSyncPreferred
+        ? window.Sections.getSectionNameSyncPreferred(section)
+        : (`Section ${section}`);
 }
 
 /**
@@ -893,6 +890,13 @@ function downloadPolicyAsPDF() {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async function() {
+    // Prefetch section names early so headers render with latest names
+    try {
+        await window.Sections?.fetchSections?.();
+    } catch (e) {
+        console.warn('Failed to prefetch sections:', e);
+    }
+
     const searchInput = document.getElementById('searchInput');
     const sectionsContainer = document.getElementById('sectionsContainer');
     const policyDetailContainer = document.querySelector('.policy-detail-container');
