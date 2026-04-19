@@ -202,8 +202,16 @@ function groupPoliciesBySection(policies) {
  */
 function renderPolicyItem(policy) {
     const status = policy.status || 'draft';
-    const statusClass = status === 'approved' ? 'approved' : 'pending';
-    const statusText = status === 'approved' ? 'Approved' : 'Pending';
+    const statusClass =
+        status === 'approved' ? 'approved' :
+        status === 'draft' ? 'draft' :
+        status === 'disapproved' ? 'disapproved' :
+        'pending';
+    const statusText =
+        status === 'approved' ? 'Approved' :
+        status === 'draft' ? 'Draft' :
+        status === 'disapproved' ? 'Disapproved' :
+        'Pending';
     const policyId = policy.policy_id || policy.id || 'N/A';
     const policyName = policy.policy_name || 'Untitled Policy';
     const policyUuid = policy.id; // UUID for API calls
