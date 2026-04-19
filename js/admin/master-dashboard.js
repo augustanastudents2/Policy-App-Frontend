@@ -639,6 +639,7 @@ async function loadSectionsList() {
                             <div class="policy-item-actions">
                                 <button class="action-btn edit" onclick="enableSectionEdit('${String(s.key)}')" title="Edit">✏️</button>
                                 <button class="action-btn view" onclick="saveSectionName('${String(s.key)}')" title="Save">💾</button>
+                                <button class="action-btn delete" onclick="deleteSection('${String(s.key)}')" title="Delete">🗑️</button>
                             </div>
                         </div>
                         <div class="policy-item-meta" style="gap:12px; align-items:center;">
@@ -673,6 +674,53 @@ function enableSectionEdit(sectionKey) {
         input.disabled = false;
         input.focus();
         input.setSelectionRange(input.value.length, input.value.length);
+    }
+}
+
+async function deleteSection(sectionKey) {
+    if (currentUserRole === null) {
+        await checkUserRole();
+    }
+    if (currentUserRole !== 'admin') {
+        showSectionsNotification('Only master admin can delete sections.', 'error');
+        return;
+    }
+
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+        showSectionsNotification('Please login to delete sections.', 'error');
+        return;
+    }
+
+    const confirmed = confirm(`Delete section "${sectionKey}"? This can only succeed if it has 0 policies.`);
+    if (!confirmed) return;
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/sections/${encodeURIComponent(sectionKey)}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({ detail: 'Failed to delete section' }));
+            throw new Error(err.detail || `Failed to delete section: ${res.status}`);
+        }
+
+        showSectionsNotification(`Section ${sectionKey} deleted.`, 'success');
+        try {
+            await window.Sections?.refreshSections?.();
+        } catch {}
+        await loadSectionsList();
+        await window.Sections?.populateSectionSelect(document.getElementById('sectionFilter'), {
+            includeAll: true,
+            includeEmptyOption: false
+        });
+        window.Sections?.broadcastSectionsUpdated?.();
+    } catch (error) {
+        console.error('Error deleting section:', error);
+        showSectionsNotification(`Error deleting section: ${error.message}`, 'error');
     }
 }
 
@@ -803,3 +851,4 @@ window.deleteUser = deleteUser;
 window.resetAllReviews = resetAllReviews;
 window.enableSectionEdit = enableSectionEdit;
 window.saveSectionName = saveSectionName;
+window.deleteSection = deleteSection;
