@@ -56,6 +56,9 @@ function startPoliciesPolling(intervalSeconds = 30) {
         }
     };
 
+    // Run once immediately so user sees new items quickly
+    poll();
+
     // Poll periodically
     policiesPollingInterval = setInterval(poll, intervalSeconds * 1000);
 
@@ -100,7 +103,7 @@ function getSectionName(section) {
 /**
  * Loads all policies from the API and displays them grouped by section.
  */
-async function loadPolicies() {
+async function loadPolicies(opts = {}) {
     const policiesList = document.getElementById("policiesList");
     if (!policiesList) return;
 
@@ -116,13 +119,14 @@ async function loadPolicies() {
         const currentQuery = (searchInput?.value || "").toLowerCase();
 
         // Show loading state
-        const silent = arguments?.[0]?.silent === true;
+        const silent = opts.silent === true;
         if (!silent) {
             policiesList.innerHTML = '<div class="empty-state"><div class="empty-state-text">Loading policies...</div></div>';
         }
 
         const response = await fetch(
-            `${API_BASE_URL}/api/policies`,
+            // Cache-buster so browser/proxies don't serve stale lists
+            `${API_BASE_URL}/api/policies?t=${Date.now()}`,
             {
                 method: "GET",
                 headers: {
