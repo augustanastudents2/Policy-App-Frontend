@@ -124,28 +124,45 @@ async function loadPolicies(opts = {}) {
             policiesList.innerHTML = '<div class="empty-state"><div class="empty-state-text">Loading policies...</div></div>';
         }
 
-        const response = await fetch(
-            // Cache-buster so browser/proxies don't serve stale lists
-            `${API_BASE_URL}/api/policies?t=${Date.now()}`,
-            {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
+        // Fetch *all* policies by paging through results (API defaults to limit=50).
+        const pageSize = 100; // backend caps at 100
+        let offset = 0;
+        let policies = [];
+
+        while (true) {
+            const response = await fetch(
+                // Cache-buster so browser/proxies don't serve stale lists
+                `${API_BASE_URL}/api/policies?limit=${pageSize}&offset=${offset}&t=${Date.now()}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    }
                 }
-            }
-        );
+            );
 
-        if (!response.ok) {
-            if (response.status === 401 || response.status === 403) {
-                alert("You don't have permission to view policies. Please login with an admin or policy_working_group account.");
-                window.location.href = "admin/login.html";
-                return;
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    alert("You don't have permission to view policies. Please login with an admin or policy_working_group account.");
+                    window.location.href = "admin/login.html";
+                    return;
+                }
+                throw new Error(`Failed to load policies: ${response.status}`);
             }
-            throw new Error(`Failed to load policies: ${response.status}`);
+
+            const page = await response.json();
+            if (Array.isArray(page) && page.length > 0) {
+                policies = policies.concat(page);
+            }
+
+            // Stop when fewer than pageSize returned
+            if (!Array.isArray(page) || page.length < pageSize) break;
+            offset += pageSize;
+
+            // Hard safety cap to avoid infinite loops if backend misbehaves
+            if (offset > 10_000) break;
         }
-
-        const policies = await response.json();
         console.log("Policies loaded:", policies);
 
         // Group policies by section
