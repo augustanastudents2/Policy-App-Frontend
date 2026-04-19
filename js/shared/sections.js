@@ -29,6 +29,12 @@ var API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.c
         return cachedPromise;
     }
 
+    async function refreshSections() {
+        cachedPromise = null;
+        cachedAt = 0;
+        return await fetchSections();
+    }
+
     function fallbackName(sectionKeyOrName) {
         const sectionNames = {
             '1': 'Organizational Identity & Values',
@@ -95,6 +101,7 @@ var API_BASE_URL = window.API_BASE_URL || "https://policy-app-backend.onrender.c
 
     window.Sections = {
         fetchSections,
+        refreshSections,
         getSectionName,
         getSectionNameSyncPreferred,
         populateSectionSelect,

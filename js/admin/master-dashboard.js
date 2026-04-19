@@ -716,7 +716,12 @@ async function saveSectionName(sectionKey) {
         }
 
         showSectionsNotification(`Section ${sectionKey} updated.`, 'success');
-        // bust cache by reloading page list
+        // Refresh cached sections so UI updates immediately
+        try {
+            await window.Sections?.refreshSections?.();
+        } catch {}
+
+        // Reload list + dropdown
         await loadSectionsList();
         await window.Sections?.populateSectionSelect(document.getElementById('sectionFilter'), {
             includeAll: true,
@@ -771,6 +776,12 @@ async function createSectionFromForm() {
 
         showSectionsNotification('Section created.', 'success');
         document.getElementById('sectionsCreateForm')?.reset();
+
+        // Refresh cached sections so UI updates immediately
+        try {
+            await window.Sections?.refreshSections?.();
+        } catch {}
+
         await loadSectionsList();
         await window.Sections?.populateSectionSelect(document.getElementById('sectionFilter'), {
             includeAll: true,
