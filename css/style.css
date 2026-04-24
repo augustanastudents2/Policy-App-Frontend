@@ -13,6 +13,11 @@ body {
     color: #333;
 }
 
+img {
+    max-width: 100%;
+    height: auto;
+}
+
 .container {
     display: flex;
     min-height: 100vh;
@@ -254,6 +259,20 @@ body {
     }
 }
 
+/* Tablet tuning */
+@media (max-width: 1024px) {
+    .page-title {
+        font-size: 40px;
+    }
+    .main-content {
+        padding: 18px 20px;
+    }
+    .header {
+        padding: 16px 20px;
+        margin: -18px -20px 20px -20px;
+    }
+}
+
 /* Header */
 .header {
     position: sticky;
@@ -313,6 +332,30 @@ body {
     font-weight: 700;
     color: #333;
     margin: 0;
+}
+
+/* Phone tuning */
+@media (max-width: 600px) {
+    .main-content {
+        padding: 14px 14px;
+    }
+    .header {
+        padding: 12px 14px;
+        margin: -14px -14px 18px -14px;
+    }
+    .page-title {
+        font-size: 30px;
+    }
+    .download-pdf-btn {
+        width: 100%;
+        text-align: center;
+    }
+    .section-header {
+        padding: 14px 16px;
+    }
+    .section-content {
+        padding: 16px;
+    }
 }
 
 .download-pdf-btn {

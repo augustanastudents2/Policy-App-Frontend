@@ -35,6 +35,11 @@ body {
     line-height: 1.6;
 }
 
+img {
+    max-width: 100%;
+    height: auto;
+}
+
 /* ============================================
    Login Page Styles
    ============================================ */
@@ -307,6 +312,7 @@ body {
     display: flex;
     align-items: center;
     gap: 20px;
+    flex-wrap: wrap;
 }
 
 .search-bar {
@@ -1159,6 +1165,40 @@ body {
 
     .policy-form {
         padding: 20px;
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-header {
+        padding: 12px 14px;
+    }
+    .header-actions {
+        gap: 10px;
+        width: 100%;
+    }
+    .search-bar {
+        flex: 1 1 auto;
+    }
+    .search-bar input {
+        width: 100%;
+    }
+    .admin-main {
+        padding: 14px;
+    }
+    /* Prevent tables from overflowing small screens */
+    table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+    }
+}
+
+@media (max-width: 1024px) {
+    .search-bar input {
+        width: 220px;
+    }
+    .admin-main {
+        padding: 24px;
     }
 }
 
