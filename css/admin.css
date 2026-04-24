@@ -1060,6 +1060,11 @@ img {
         gap: 12px;
     }
 
+    /* Mobile: logo lives in drawer, not topbar */
+    .admin-header .logo {
+        display: none;
+    }
+
     .search-bar input {
         width: 180px;
     }
