@@ -2155,3 +2155,55 @@ img {
     color: var(--text-light);
 }
 
+/* =========================================================
+   Mobile-first override block (MUST be last in file)
+   Ensures admin pages behave on phones/tablets.
+   ========================================================= */
+
+html, body {
+    overflow-x: hidden;
+}
+
+@media (max-width: 1024px) {
+    .admin-main {
+        padding: 20px !important;
+    }
+    .search-bar input {
+        width: 220px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .search-bar input {
+        width: 160px !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-header {
+        padding: 12px 14px !important;
+    }
+    .header-actions {
+        gap: 10px !important;
+        width: 100% !important;
+    }
+    .search-bar {
+        flex: 1 1 auto !important;
+        width: 100% !important;
+    }
+    .search-bar input {
+        width: 100% !important;
+    }
+    .admin-main {
+        padding: 14px !important;
+    }
+
+    /* keep data tables usable */
+    table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+

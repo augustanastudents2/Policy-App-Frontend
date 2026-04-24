@@ -843,6 +843,83 @@ img {
     margin-bottom: 16px;
 }
 
+/* =========================================================
+   Mobile-first override block (MUST be last in file)
+   This prevents late-defined desktop rules from overriding
+   phone/tablet layouts.
+   ========================================================= */
+
+html, body {
+    overflow-x: hidden;
+}
+
+/* Fluid typography helpers */
+.page-title,
+.contact-heading,
+.suggestion-heading {
+    font-size: clamp(28px, 6vw, 48px);
+}
+
+/* Public layout: base is mobile */
+@media (max-width: 1024px) {
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px !important;
+    }
+
+    .header {
+        padding: 12px 14px !important;
+        margin: -16px -16px 18px -16px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        flex-wrap: wrap !important;
+    }
+
+    .search-container {
+        max-width: none !important;
+        flex: 1 1 260px !important;
+        min-width: 0 !important;
+    }
+}
+
+/* Off-canvas menu behavior */
+@media (max-width: 900px) {
+    .container {
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    .sidebar {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        width: min(84vw, 320px) !important;
+        height: 100vh !important;
+        transform: translateX(-110%) !important;
+        transition: transform 0.25s ease !important;
+        z-index: 2000 !important;
+    }
+
+    body.public-nav-open .sidebar {
+        transform: translateX(0) !important;
+    }
+
+    .mobile-nav-overlay {
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 1500 !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .download-pdf-btn,
+    .btn,
+    button {
+        min-height: 44px;
+    }
+}
+
 @media (max-width: 768px) {
     .sidebar {
         width: 200px;
