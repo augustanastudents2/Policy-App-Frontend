@@ -12,48 +12,6 @@
 
     if (document.querySelector("[data-public-nav-toggle='1']")) return;
 
-    // Ensure sidebar can pin bottom links on mobile.
-    try {
-      sidebar.setAttribute("data-mobile-sidebar", "public");
-
-      // Move Admin Login + Contact Us to a bottom container (mobile only via CSS).
-      if (!sidebar.querySelector("[data-public-nav-bottom='1']")) {
-        const bottom = document.createElement("div");
-        bottom.setAttribute("data-public-nav-bottom", "1");
-        bottom.className = "mobile-nav-bottom";
-
-        const spacer = document.createElement("div");
-        spacer.className = "mobile-nav-spacer";
-        spacer.setAttribute("data-public-nav-spacer", "1");
-
-        const adminLink = sidebar.querySelector(".admin-login");
-        const contactLink =
-          sidebar.querySelector(".contact-link-active") || sidebar.querySelector(".contact-link");
-
-        // Insert spacer near end, then append bottom links
-        sidebar.appendChild(spacer);
-        if (adminLink) bottom.appendChild(adminLink);
-        if (contactLink) bottom.appendChild(contactLink);
-        sidebar.appendChild(bottom);
-      }
-
-      // Add an explicit close "X" inside the drawer.
-      if (!sidebar.querySelector("[data-mobile-nav-close='public']")) {
-        const closeBtn = document.createElement("button");
-        closeBtn.type = "button";
-        closeBtn.className = "mobile-nav-close";
-        closeBtn.setAttribute("data-mobile-nav-close", "public");
-        closeBtn.setAttribute("aria-label", "Close menu");
-        closeBtn.innerHTML = "×";
-        closeBtn.addEventListener("click", () => {
-          document.body.classList.remove("public-nav-open");
-        });
-        sidebar.prepend(closeBtn);
-      }
-    } catch {
-      // ignore
-    }
-
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "mobile-nav-toggle";
@@ -91,36 +49,6 @@
 
     if (document.querySelector("[data-admin-nav-toggle='1']")) return;
 
-    // Put the logo into the collapsible menu on mobile (hide header logo via CSS).
-    try {
-      sidebar.setAttribute("data-mobile-sidebar", "admin");
-      if (!sidebar.querySelector("[data-admin-mobile-logo='1']")) {
-        const headerLogo = document.querySelector(".admin-header .logo");
-        if (headerLogo) {
-          const clone = headerLogo.cloneNode(true);
-          clone.setAttribute("data-admin-mobile-logo", "1");
-          clone.classList.add("admin-sidebar-logo");
-          sidebar.prepend(clone);
-        }
-      }
-
-      // Add an explicit close "X" inside the drawer.
-      if (!sidebar.querySelector("[data-mobile-nav-close='admin']")) {
-        const closeBtn = document.createElement("button");
-        closeBtn.type = "button";
-        closeBtn.className = "admin-mobile-nav-close";
-        closeBtn.setAttribute("data-mobile-nav-close", "admin");
-        closeBtn.setAttribute("aria-label", "Close menu");
-        closeBtn.innerHTML = "×";
-        closeBtn.addEventListener("click", () => {
-          document.body.classList.remove("admin-nav-open");
-        });
-        sidebar.prepend(closeBtn);
-      }
-    } catch {
-      // ignore
-    }
-
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "admin-mobile-nav-toggle";
@@ -147,6 +75,70 @@
 
     header.prepend(btn);
     document.body.appendChild(overlay);
+  }
+
+  function ensureWakeOverlay() {
+    if (document.querySelector("[data-wake-overlay='1']")) return;
+
+    // Load the web component once
+    if (!document.querySelector("script[data-dotlottie-wc='1']")) {
+      const s = document.createElement("script");
+      s.type = "module";
+      s.src =
+        "https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.10/dist/dotlottie-wc.js";
+      s.setAttribute("data-dotlottie-wc", "1");
+      document.head.appendChild(s);
+    }
+
+    const overlay = document.createElement("div");
+    overlay.setAttribute("data-wake-overlay", "1");
+    overlay.style.position = "fixed";
+    overlay.style.inset = "0";
+    overlay.style.zIndex = "4000";
+    overlay.style.display = "none";
+    overlay.style.alignItems = "center";
+    overlay.style.justifyContent = "center";
+    overlay.style.padding = "16px";
+    overlay.style.background = "rgba(0,0,0,0.35)";
+    overlay.style.backdropFilter = "blur(8px)";
+    overlay.style.webkitBackdropFilter = "blur(8px)";
+
+    const card = document.createElement("div");
+    card.style.width = "min(520px, 100%)";
+    card.style.background = "#fff";
+    card.style.border = "1px solid rgba(0,0,0,0.12)";
+    card.style.borderRadius = "16px";
+    card.style.boxShadow = "0 20px 60px rgba(0,0,0,0.18)";
+    card.style.padding = "18px";
+    card.style.textAlign = "center";
+
+    card.innerHTML = `
+      <dotlottie-wc
+        src="https://lottie.host/448d1092-1f19-4cb2-8dd6-a5cd8fd44073/7CzzgIlxIm.lottie"
+        style="width: min(320px, 85vw); height: min(320px, 85vw);"
+        autoplay
+        loop
+      ></dotlottie-wc>
+      <div style="margin-top:10px;font-size:18px;font-weight:800;color:#111;">
+        Waking up the server…
+      </div>
+      <div style="margin-top:6px;color:#666;font-size:14px;line-height:1.45;">
+        Render free tier spins down after inactivity. This can take a few seconds.
+      </div>
+    `;
+
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+  }
+
+  function showWakeOverlay() {
+    const el = document.querySelector("[data-wake-overlay='1']");
+    if (el) el.style.display = "flex";
+  }
+
+  function hideWakeOverlay() {
+    const el = document.querySelector("[data-wake-overlay='1']");
+    if (el) el.style.display = "none";
   }
 
   const footer = document.createElement("footer");
@@ -210,6 +202,50 @@
     try {
       initPublicMobileNav();
       initAdminMobileNav();
+    } catch (e) {
+      // ignore
+    }
+
+    // Backend wake overlay + fetch wrapper (Render spin-up)
+    try {
+      ensureWakeOverlay();
+
+      const originalFetch = window.fetch.bind(window);
+      let pending = 0;
+      let timer = null;
+
+      function start() {
+        pending += 1;
+        if (pending === 1) {
+          if (timer) clearTimeout(timer);
+          timer = setTimeout(() => showWakeOverlay(), 900);
+        }
+      }
+
+      function end() {
+        pending = Math.max(0, pending - 1);
+        if (pending === 0) {
+          if (timer) clearTimeout(timer);
+          timer = null;
+          hideWakeOverlay();
+        }
+      }
+
+      window.fetch = async (input, init) => {
+        const url = typeof input === "string" ? input : input?.url || "";
+        const isApi =
+          (typeof window.API_BASE_URL === "string" &&
+            url.startsWith(window.API_BASE_URL)) ||
+          url.includes("/api/");
+
+        if (isApi) start();
+        try {
+          const res = await originalFetch(input, init);
+          return res;
+        } finally {
+          if (isApi) end();
+        }
+      };
     } catch (e) {
       // ignore
     }
