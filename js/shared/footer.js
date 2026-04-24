@@ -12,6 +12,48 @@
 
     if (document.querySelector("[data-public-nav-toggle='1']")) return;
 
+    // Ensure sidebar can pin bottom links on mobile.
+    try {
+      sidebar.setAttribute("data-mobile-sidebar", "public");
+
+      // Move Admin Login + Contact Us to a bottom container (mobile only via CSS).
+      if (!sidebar.querySelector("[data-public-nav-bottom='1']")) {
+        const bottom = document.createElement("div");
+        bottom.setAttribute("data-public-nav-bottom", "1");
+        bottom.className = "mobile-nav-bottom";
+
+        const spacer = document.createElement("div");
+        spacer.className = "mobile-nav-spacer";
+        spacer.setAttribute("data-public-nav-spacer", "1");
+
+        const adminLink = sidebar.querySelector(".admin-login");
+        const contactLink =
+          sidebar.querySelector(".contact-link-active") || sidebar.querySelector(".contact-link");
+
+        // Insert spacer near end, then append bottom links
+        sidebar.appendChild(spacer);
+        if (adminLink) bottom.appendChild(adminLink);
+        if (contactLink) bottom.appendChild(contactLink);
+        sidebar.appendChild(bottom);
+      }
+
+      // Add an explicit close "X" inside the drawer.
+      if (!sidebar.querySelector("[data-mobile-nav-close='public']")) {
+        const closeBtn = document.createElement("button");
+        closeBtn.type = "button";
+        closeBtn.className = "mobile-nav-close";
+        closeBtn.setAttribute("data-mobile-nav-close", "public");
+        closeBtn.setAttribute("aria-label", "Close menu");
+        closeBtn.innerHTML = "×";
+        closeBtn.addEventListener("click", () => {
+          document.body.classList.remove("public-nav-open");
+        });
+        sidebar.prepend(closeBtn);
+      }
+    } catch {
+      // ignore
+    }
+
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "mobile-nav-toggle";
@@ -48,6 +90,36 @@
     if (!sidebar || !header) return;
 
     if (document.querySelector("[data-admin-nav-toggle='1']")) return;
+
+    // Put the logo into the collapsible menu on mobile (hide header logo via CSS).
+    try {
+      sidebar.setAttribute("data-mobile-sidebar", "admin");
+      if (!sidebar.querySelector("[data-admin-mobile-logo='1']")) {
+        const headerLogo = document.querySelector(".admin-header .logo");
+        if (headerLogo) {
+          const clone = headerLogo.cloneNode(true);
+          clone.setAttribute("data-admin-mobile-logo", "1");
+          clone.classList.add("admin-sidebar-logo");
+          sidebar.prepend(clone);
+        }
+      }
+
+      // Add an explicit close "X" inside the drawer.
+      if (!sidebar.querySelector("[data-mobile-nav-close='admin']")) {
+        const closeBtn = document.createElement("button");
+        closeBtn.type = "button";
+        closeBtn.className = "admin-mobile-nav-close";
+        closeBtn.setAttribute("data-mobile-nav-close", "admin");
+        closeBtn.setAttribute("aria-label", "Close menu");
+        closeBtn.innerHTML = "×";
+        closeBtn.addEventListener("click", () => {
+          document.body.classList.remove("admin-nav-open");
+        });
+        sidebar.prepend(closeBtn);
+      }
+    } catch {
+      // ignore
+    }
 
     const btn = document.createElement("button");
     btn.type = "button";
