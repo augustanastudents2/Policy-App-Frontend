@@ -194,10 +194,12 @@ async function sendNewUserEmail({ fullName, email, password }) {
 
     const loginUrl = `${window.location.origin}/admin/login.html`;
     const templateParams = {
+        app_name: 'ASA Policy App',
         to_name: fullName,
         to_email: email,
-        password: password,
         login_url: loginUrl,
+        user_email: email,
+        user_password: password,
     };
 
     await window.emailjs.send(cfg.serviceId, cfg.templateId, templateParams);
