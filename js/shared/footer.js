@@ -21,6 +21,8 @@
   footer.style.alignItems = "center";
   footer.style.justifyContent = "center";
   footer.style.flexWrap = "wrap";
+  footer.style.width = "100%";
+  footer.style.boxSizing = "border-box";
   footer.style.borderTop = "1px solid rgba(0,0,0,0.1)";
   footer.style.color = "#86868b";
   footer.style.fontSize = "14px";
@@ -34,6 +36,31 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
+    // Ensure footer sits at the bottom, not beside centered content.
+    try {
+      const bodyStyles = window.getComputedStyle(document.body);
+      if (bodyStyles.display !== "flex") {
+        document.body.style.display = "flex";
+      }
+      document.body.style.flexDirection = "column";
+      document.body.style.minHeight = "100vh";
+
+      // Make the main page container take remaining height.
+      const main =
+        document.querySelector(".container") ||
+        document.querySelector(".admin-layout") ||
+        document.querySelector(".login-container") ||
+        document.body.firstElementChild;
+
+      if (main && main !== footer) {
+        main.style.flex = "1 0 auto";
+      }
+
+      footer.style.marginTop = "auto";
+      footer.style.flex = "0 0 auto";
+    } catch (e) {
+      // ignore
+    }
     document.body.appendChild(footer);
   });
 })();

@@ -131,6 +131,68 @@ body {
     background-color: #f1f1f1;
 }
 
+/* ============================================
+   Responsive Design (Public pages)
+   ============================================ */
+@media (max-width: 900px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        overflow: visible;
+        padding: 16px;
+    }
+
+    .logo {
+        margin: 0 auto 20px auto;
+        width: 64px;
+        height: 64px;
+    }
+
+    .admin-login,
+    .contact-link,
+    .contact-link-active {
+        position: static;
+        display: inline-block;
+        margin-top: 12px;
+        padding-left: 0;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 16px;
+    }
+
+    .header {
+        padding: 16px;
+        margin: -16px -16px 20px -16px;
+    }
+
+    .page-header-with-button {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 0;
+    }
+
+    .page-title {
+        font-size: 36px;
+    }
+}
+
+@media (max-width: 600px) {
+    .search-container {
+        max-width: 100%;
+    }
+    .page-title {
+        font-size: 30px;
+    }
+}
+
 /* Header */
 .header {
     position: sticky;
