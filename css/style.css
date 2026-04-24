@@ -145,8 +145,6 @@ img {
     }
 
     .sidebar {
-        display: flex;
-        flex-direction: column;
         position: fixed;
         top: 0;
         left: 0;
@@ -157,36 +155,6 @@ img {
         z-index: 2000;
         transform: translateX(-110%);
         transition: transform 0.25s ease;
-    }
-
-    .mobile-nav-close {
-        align-self: flex-end;
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        border: 1px solid #e0e0e0;
-        background: #fff;
-        color: #333;
-        font-size: 26px;
-        line-height: 1;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        margin-bottom: 10px;
-    }
-
-    .mobile-nav-spacer {
-        flex: 1 1 auto;
-    }
-
-    .mobile-nav-bottom {
-        margin-top: 12px;
-        padding-top: 12px;
-        border-top: 1px solid rgba(0, 0, 0, 0.08);
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
     }
 
     body.public-nav-open .sidebar {
@@ -931,10 +899,26 @@ html, body {
         transform: translateX(-110%) !important;
         transition: transform 0.25s ease !important;
         z-index: 2000 !important;
+        display: flex !important;
+        flex-direction: column !important;
     }
 
     body.public-nav-open .sidebar {
         transform: translateX(0) !important;
+    }
+
+    /* Push Admin Login + Contact to bottom of menu */
+    .admin-login {
+        position: static !important;
+        margin-top: auto !important;
+        padding-left: 0 !important;
+    }
+
+    .contact-link,
+    .contact-link-active {
+        position: static !important;
+        margin-top: 10px !important;
+        padding-left: 0 !important;
     }
 
     .mobile-nav-overlay {
@@ -949,6 +933,13 @@ html, body {
     .btn,
     button {
         min-height: 44px;
+    }
+
+    /* Mobile: allow scrolling inside a section so long lists don't feel endless */
+    .section-content.open {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        max-height: 70vh !important;
     }
 }
 

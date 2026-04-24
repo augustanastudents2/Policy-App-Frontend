@@ -979,19 +979,19 @@ img {
         position: fixed;
         top: 73px;
         left: 0;
-        right: 0;
-        height: auto;
-        max-height: calc(100vh - 73px);
-        width: 100%;
-        transform: translateY(-110%);
+        right: auto;
+        height: calc(100vh - 73px);
+        max-height: none;
+        width: min(84vw, var(--sidebar-width));
+        transform: translateX(-110%);
         transition: transform 0.25s ease;
         z-index: 2000;
-        border-right: none;
+        border-right: 1px solid var(--border-color);
         border-bottom: none;
     }
 
     body.admin-nav-open .admin-sidebar {
-        transform: translateY(0);
+        transform: translateX(0);
     }
 
     .admin-mobile-nav-overlay {
@@ -1056,12 +1056,12 @@ img {
     .nav-item {
         white-space: normal;
         border-left: none;
-        border-bottom: 1px solid var(--border-color);
+        border-bottom: 0;
     }
 
     .nav-item.active {
         border-left: none;
-        border-bottom-color: var(--border-color);
+        border-bottom-color: transparent;
     }
 
     .header-actions {

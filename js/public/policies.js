@@ -366,9 +366,13 @@ function toggleSection(sectionId) {
         if (isOpen) {
             content.classList.add('open');
             arrow.classList.add('open');
+            // Use scrollHeight so long lists don't get cut off on mobile.
+            // Also enables smooth animation without relying on a fixed max-height.
+            content.style.maxHeight = content.scrollHeight + "px";
         } else {
             content.classList.remove('open');
             arrow.classList.remove('open');
+            content.style.maxHeight = "0px";
         }
     }
 }
