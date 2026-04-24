@@ -1061,7 +1061,7 @@ img {
     }
 
     .search-bar input {
-        width: 160px;
+        width: 180px;
     }
 
     .admin-main {
@@ -1154,17 +1154,8 @@ img {
 }
 
 @media (max-width: 480px) {
-    .login-page {
-        padding: 16px;
-    }
-
-    .login-container {
-        max-width: 100%;
-    }
-
     .login-card {
-        width: 100%;
-        padding: 28px;
+        padding: 24px;
     }
 
     .search-bar input {
@@ -1186,47 +1177,10 @@ img {
         width: 100%;
     }
     .search-bar {
-        flex: 0 1 170px;
+        flex: 1 1 auto;
     }
     .search-bar input {
         width: 100%;
-    }
-
-    /* Mobile admin topbar: keep menu/search/profile tight; logo lives in drawer */
-    .admin-header .logo {
-        display: none;
-    }
-
-    .admin-sidebar-logo {
-        width: 72px;
-        height: 72px;
-        margin: 0 auto 14px auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .admin-sidebar-logo img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-    }
-
-    .admin-mobile-nav-close {
-        align-self: flex-end;
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        border: 1px solid var(--border-color);
-        background: var(--bg-white);
-        color: var(--text-primary);
-        font-size: 26px;
-        line-height: 1;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        margin: 10px 10px 0 0;
     }
     .admin-main {
         padding: 14px;
@@ -2232,13 +2186,16 @@ html, body {
     .header-actions {
         gap: 10px !important;
         width: 100% !important;
+        flex-wrap: nowrap !important;
     }
     .search-bar {
         flex: 1 1 auto !important;
-        width: 100% !important;
+        width: auto !important;
     }
     .search-bar input {
-        width: 100% !important;
+        width: clamp(140px, 46vw, 220px) !important;
+        padding: 9px 12px 9px 36px !important;
+        font-size: 13px !important;
     }
     .admin-main {
         padding: 14px !important;
