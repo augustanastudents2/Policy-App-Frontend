@@ -978,17 +978,19 @@ img {
         position: fixed;
         top: 73px;
         left: 0;
-        height: calc(100vh - 73px);
-        width: var(--sidebar-width);
-        transform: translateX(-110%);
+        right: 0;
+        height: auto;
+        max-height: calc(100vh - 73px);
+        width: 100%;
+        transform: translateY(-110%);
         transition: transform 0.25s ease;
         z-index: 2000;
-        border-right: 1px solid var(--border-color);
+        border-right: none;
         border-bottom: none;
     }
 
     body.admin-nav-open .admin-sidebar {
-        transform: translateX(0);
+        transform: translateY(0);
     }
 
     .admin-mobile-nav-overlay {
@@ -1004,6 +1006,11 @@ img {
     body.admin-nav-open .admin-mobile-nav-overlay {
         opacity: 1;
         pointer-events: auto;
+    }
+
+    /* Ensure menu sits above page content when open */
+    body.admin-nav-open .admin-main {
+        overflow: hidden;
     }
 
     .admin-mobile-nav-toggle {
@@ -1046,23 +1053,18 @@ img {
     }
 
     .nav-item {
-        white-space: nowrap;
+        white-space: normal;
         border-left: none;
-        border-bottom: 3px solid transparent;
+        border-bottom: 1px solid var(--border-color);
     }
 
     .nav-item.active {
         border-left: none;
-        border-bottom-color: var(--asa-red);
+        border-bottom-color: var(--border-color);
     }
 
     .header-actions {
         gap: 12px;
-    }
-
-    /* Mobile: logo lives in drawer, not topbar */
-    .admin-header .logo {
-        display: none;
     }
 
     .search-bar input {
