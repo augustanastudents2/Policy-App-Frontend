@@ -5,6 +5,78 @@
   // Avoid duplicate injection
   if (document.querySelector("[data-asa-footer='1']")) return;
 
+  function initPublicMobileNav() {
+    const sidebar = document.querySelector(".sidebar");
+    const header = document.querySelector(".main-content .header");
+    if (!sidebar || !header) return;
+
+    if (document.querySelector("[data-public-nav-toggle='1']")) return;
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "mobile-nav-toggle";
+    btn.setAttribute("data-public-nav-toggle", "1");
+    btn.setAttribute("aria-label", "Open menu");
+    btn.innerHTML = `
+      <span class="mobile-nav-icon" aria-hidden="true"></span>
+    `;
+
+    const overlay = document.createElement("div");
+    overlay.className = "mobile-nav-overlay";
+    overlay.setAttribute("data-mobile-nav-overlay", "public");
+
+    function close() {
+      document.body.classList.remove("public-nav-open");
+    }
+    function toggle() {
+      document.body.classList.toggle("public-nav-open");
+    }
+
+    btn.addEventListener("click", toggle);
+    overlay.addEventListener("click", close);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") close();
+    });
+
+    header.prepend(btn);
+    document.body.appendChild(overlay);
+  }
+
+  function initAdminMobileNav() {
+    const sidebar = document.querySelector(".admin-sidebar");
+    const header = document.querySelector(".admin-header .header-content");
+    if (!sidebar || !header) return;
+
+    if (document.querySelector("[data-admin-nav-toggle='1']")) return;
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "admin-mobile-nav-toggle";
+    btn.setAttribute("data-admin-nav-toggle", "1");
+    btn.setAttribute("aria-label", "Open menu");
+    btn.innerHTML = `<span class="mobile-nav-icon" aria-hidden="true"></span>`;
+
+    const overlay = document.createElement("div");
+    overlay.className = "admin-mobile-nav-overlay";
+    overlay.setAttribute("data-mobile-nav-overlay", "admin");
+
+    function close() {
+      document.body.classList.remove("admin-nav-open");
+    }
+    function toggle() {
+      document.body.classList.toggle("admin-nav-open");
+    }
+
+    btn.addEventListener("click", toggle);
+    overlay.addEventListener("click", close);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") close();
+    });
+
+    header.prepend(btn);
+    document.body.appendChild(overlay);
+  }
+
   const footer = document.createElement("footer");
   footer.setAttribute("data-asa-footer", "1");
   footer.innerHTML = `
@@ -58,6 +130,14 @@
 
       footer.style.marginTop = "auto";
       footer.style.flex = "0 0 auto";
+    } catch (e) {
+      // ignore
+    }
+
+    // Mobile nav (public + admin)
+    try {
+      initPublicMobileNav();
+      initAdminMobileNav();
     } catch (e) {
       // ignore
     }

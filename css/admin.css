@@ -963,20 +963,80 @@ body {
    ============================================ */
 
 @media (max-width: 768px) {
+    /* Mobile: use off-canvas sidebar */
     .admin-layout {
-        flex-direction: column;
+        flex-direction: row;
     }
 
     .admin-sidebar {
-        width: 100%;
-        height: auto;
-        border-right: none;
-        border-bottom: 1px solid var(--border-color);
+        position: fixed;
+        top: 73px;
+        left: 0;
+        height: calc(100vh - 73px);
+        width: var(--sidebar-width);
+        transform: translateX(-110%);
+        transition: transform 0.25s ease;
+        z-index: 2000;
+        border-right: 1px solid var(--border-color);
+        border-bottom: none;
     }
 
+    body.admin-nav-open .admin-sidebar {
+        transform: translateX(0);
+    }
+
+    .admin-mobile-nav-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+        z-index: 1500;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+    }
+
+    body.admin-nav-open .admin-mobile-nav-overlay {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .admin-mobile-nav-toggle {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-white);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        flex: 0 0 auto;
+    }
+
+    .admin-mobile-nav-toggle .mobile-nav-icon {
+        width: 18px;
+        height: 2px;
+        background: var(--text-primary);
+        position: relative;
+        display: block;
+    }
+
+    .admin-mobile-nav-toggle .mobile-nav-icon::before,
+    .admin-mobile-nav-toggle .mobile-nav-icon::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        width: 18px;
+        height: 2px;
+        background: var(--text-primary);
+    }
+
+    .admin-mobile-nav-toggle .mobile-nav-icon::before { top: -6px; }
+    .admin-mobile-nav-toggle .mobile-nav-icon::after { top: 6px; }
+
     .sidebar-nav {
-        flex-direction: row;
-        overflow-x: auto;
+        flex-direction: column;
+        overflow-x: visible;
     }
 
     .nav-item {
@@ -995,7 +1055,7 @@ body {
     }
 
     .search-bar input {
-        width: 200px;
+        width: 180px;
     }
 
     .admin-main {
