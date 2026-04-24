@@ -1220,6 +1220,15 @@ img {
         width: 100%;
         overflow-x: auto;
     }
+
+    /* Master dashboard user management table: horizontal scroll */
+    .members-list {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .members-table {
+        min-width: 720px;
+    }
 }
 
 @media (max-width: 1024px) {
