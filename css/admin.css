@@ -95,6 +95,7 @@ img {
     box-shadow: var(--shadow-lg);
     padding: 56px;
     text-align: center;
+    width: 100%;
 }
 
 .login-logo {
