@@ -108,13 +108,9 @@ function updatePasswordPreview() {
     const nameInput = document.getElementById('memberName').value.trim();
     const passwordField = document.getElementById('memberPassword');
     
-    if (nameInput) {
-        // Get first name (first word)
-        const firstName = nameInput.split(/\s+/)[0].toLowerCase();
-        passwordField.value = firstName;
-    } else {
-        passwordField.value = '';
-    }
+    // Password is auto-generated; never display it in the UI field.
+    // Keep a friendly placeholder to avoid leaking credentials on screen.
+    if (passwordField) passwordField.value = nameInput ? 'Auto-generated' : '';
 }
 
 async function showAddMemberForm() {
@@ -132,12 +128,16 @@ async function showAddMemberForm() {
     document.getElementById('memberForm').classList.remove('hidden');
     document.getElementById('memberFormTitle').textContent = 'Add New User';
     document.getElementById('adminMemberForm').reset();
-    document.getElementById('memberPassword').value = '';
+    const pwField = document.getElementById('memberPassword');
+    if (pwField) {
+        pwField.value = 'Auto-generated';
+        pwField.dataset.password = '';
+    }
 
     // Generate a password immediately (admin can regenerate if needed).
     try {
         const pwd = await generateRandomPassword(16);
-        document.getElementById('memberPassword').value = pwd;
+        if (pwField) pwField.dataset.password = pwd;
     } catch (e) {
         console.warn('Password generation failed:', e);
     }
@@ -173,13 +173,21 @@ function showSectionsNotification(message, type = 'info') {
 function hideAddMemberForm() {
     document.getElementById('memberForm').classList.add('hidden');
     document.getElementById('adminMemberForm').reset();
-    document.getElementById('memberPassword').value = '';
+    const pwField = document.getElementById('memberPassword');
+    if (pwField) {
+        pwField.value = '';
+        pwField.dataset.password = '';
+    }
 }
 
 async function regenerateMemberPassword() {
     try {
         const pwd = await generateRandomPassword(16);
-        document.getElementById('memberPassword').value = pwd;
+        const pwField = document.getElementById('memberPassword');
+        if (pwField) {
+            pwField.dataset.password = pwd;
+            pwField.value = 'Auto-generated';
+        }
         showNotification('New password generated.', 'success');
     } catch (e) {
         showNotification(`Couldn't generate password: ${e.message}`, 'error');
@@ -230,15 +238,21 @@ async function handleMemberSubmit(e) {
         return;
     }
 
-    let password = passwordField?.value?.trim();
+    let password = passwordField?.dataset?.password?.trim();
     if (!password) {
         try {
             password = await generateRandomPassword(16);
-            passwordField.value = password;
+            if (passwordField) {
+                passwordField.dataset.password = password;
+                passwordField.value = 'Auto-generated';
+            }
         } catch (e) {
             // Last-resort fallback (keeps old behavior if password API is unavailable)
             password = nameInput.split(/\s+/)[0].toLowerCase();
-            passwordField.value = password;
+            if (passwordField) {
+                passwordField.dataset.password = password;
+                passwordField.value = 'Auto-generated';
+            }
         }
     }
     
