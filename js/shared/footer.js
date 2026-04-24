@@ -128,10 +128,14 @@
     `;
 
     overlay.appendChild(card);
-    document.body.appendChild(overlay);
+
+    // Body may not be ready if this runs very early.
+    const mount = document.body || document.documentElement;
+    mount.appendChild(overlay);
   }
 
   function showWakeOverlay() {
+    ensureWakeOverlay();
     const el = document.querySelector("[data-wake-overlay='1']");
     if (el) el.style.display = "flex";
   }
@@ -140,6 +144,47 @@
     const el = document.querySelector("[data-wake-overlay='1']");
     if (el) el.style.display = "none";
   }
+
+  // Install fetch wrapper immediately so page-load API calls are tracked.
+  // (Many pages call fetch before DOMContentLoaded.)
+  (function installFetchWakeWrapper() {
+    if (window.__ASA_FETCH_WAKE_INSTALLED__) return;
+    window.__ASA_FETCH_WAKE_INSTALLED__ = true;
+
+    const originalFetch = window.fetch.bind(window);
+    let pending = 0;
+    let timer = null;
+
+    function start() {
+      pending += 1;
+      if (pending === 1) {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => showWakeOverlay(), 900);
+      }
+    }
+
+    function end() {
+      pending = Math.max(0, pending - 1);
+      if (pending === 0) {
+        if (timer) clearTimeout(timer);
+        timer = null;
+        hideWakeOverlay();
+      }
+    }
+
+    window.fetch = async (input, init) => {
+      const url = typeof input === "string" ? input : input?.url || "";
+      const base = typeof window.API_BASE_URL === "string" ? window.API_BASE_URL : "";
+      const isApi = (base && url.startsWith(base)) || url.includes("/api/");
+
+      if (isApi) start();
+      try {
+        return await originalFetch(input, init);
+      } finally {
+        if (isApi) end();
+      }
+    };
+  })();
 
   const footer = document.createElement("footer");
   footer.setAttribute("data-asa-footer", "1");
@@ -206,49 +251,6 @@
       // ignore
     }
 
-    // Backend wake overlay + fetch wrapper (Render spin-up)
-    try {
-      ensureWakeOverlay();
-
-      const originalFetch = window.fetch.bind(window);
-      let pending = 0;
-      let timer = null;
-
-      function start() {
-        pending += 1;
-        if (pending === 1) {
-          if (timer) clearTimeout(timer);
-          timer = setTimeout(() => showWakeOverlay(), 900);
-        }
-      }
-
-      function end() {
-        pending = Math.max(0, pending - 1);
-        if (pending === 0) {
-          if (timer) clearTimeout(timer);
-          timer = null;
-          hideWakeOverlay();
-        }
-      }
-
-      window.fetch = async (input, init) => {
-        const url = typeof input === "string" ? input : input?.url || "";
-        const isApi =
-          (typeof window.API_BASE_URL === "string" &&
-            url.startsWith(window.API_BASE_URL)) ||
-          url.includes("/api/");
-
-        if (isApi) start();
-        try {
-          const res = await originalFetch(input, init);
-          return res;
-        } finally {
-          if (isApi) end();
-        }
-      };
-    } catch (e) {
-      // ignore
-    }
     document.body.appendChild(footer);
   });
 })();
