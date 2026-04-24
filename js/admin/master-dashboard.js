@@ -10,13 +10,51 @@ document.addEventListener('DOMContentLoaded', async function() {
     await loadAdminMembers();
     await initSectionsManagement();
     
-    // Update password preview when name changes
-    document.getElementById('memberName')?.addEventListener('input', updatePasswordPreview);
-    
     document.getElementById('sectionFilter').addEventListener('change', function() {
         loadMasterDashboard();
     });
+
+    await loadEmailJsConfigFromEnv();
+    initEmailJsIfConfigured();
 });
+
+async function loadEmailJsConfigFromEnv() {
+    // If already configured (e.g. local override), keep it.
+    if (window.EMAILJS?.publicKey && window.EMAILJS?.serviceId && window.EMAILJS?.templateId) return;
+
+    try {
+        const res = await fetch('/api/emailjs-config', { method: 'GET' });
+        if (!res.ok) return;
+        const cfg = await res.json();
+        window.EMAILJS = window.EMAILJS || {};
+        window.EMAILJS.publicKey = cfg?.publicKey || window.EMAILJS.publicKey || '';
+        window.EMAILJS.serviceId = cfg?.serviceId || window.EMAILJS.serviceId || '';
+        window.EMAILJS.templateId = cfg?.templateId || window.EMAILJS.templateId || '';
+    } catch (e) {
+        // Silent: app still works without EmailJS
+    }
+}
+
+function initEmailJsIfConfigured() {
+    try {
+        const cfg = window.EMAILJS;
+        if (!window.emailjs || !cfg?.publicKey) return;
+        window.emailjs.init({ publicKey: cfg.publicKey });
+    } catch (e) {}
+}
+
+async function generateRandomPassword(length = 16) {
+    const res = await fetch(`/api/generate-password?length=${encodeURIComponent(String(length))}`, {
+        method: 'GET'
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Failed to generate password (${res.status})`);
+    }
+    const data = await res.json();
+    if (!data?.password) throw new Error('Invalid password response');
+    return data.password;
+}
 
 async function checkUserRole() {
     try {
@@ -95,6 +133,14 @@ async function showAddMemberForm() {
     document.getElementById('memberFormTitle').textContent = 'Add New User';
     document.getElementById('adminMemberForm').reset();
     document.getElementById('memberPassword').value = '';
+
+    // Generate a password immediately (admin can regenerate if needed).
+    try {
+        const pwd = await generateRandomPassword(16);
+        document.getElementById('memberPassword').value = pwd;
+    } catch (e) {
+        console.warn('Password generation failed:', e);
+    }
 }
 
 function showNotification(message, type = 'info') {
@@ -130,6 +176,34 @@ function hideAddMemberForm() {
     document.getElementById('memberPassword').value = '';
 }
 
+async function regenerateMemberPassword() {
+    try {
+        const pwd = await generateRandomPassword(16);
+        document.getElementById('memberPassword').value = pwd;
+        showNotification('New password generated.', 'success');
+    } catch (e) {
+        showNotification(`Couldn't generate password: ${e.message}`, 'error');
+    }
+}
+
+async function sendNewUserEmail({ fullName, email, password }) {
+    const cfg = window.EMAILJS;
+    if (!window.emailjs || !cfg?.serviceId || !cfg?.templateId) {
+        return { sent: false, reason: 'EmailJS not configured' };
+    }
+
+    const loginUrl = `${window.location.origin}/admin/login.html`;
+    const templateParams = {
+        to_name: fullName,
+        to_email: email,
+        password: password,
+        login_url: loginUrl,
+    };
+
+    await window.emailjs.send(cfg.serviceId, cfg.templateId, templateParams);
+    return { sent: true };
+}
+
 async function handleMemberSubmit(e) {
     e.preventDefault();
     
@@ -153,10 +227,18 @@ async function handleMemberSubmit(e) {
         alert('Please fill in all fields');
         return;
     }
-    
-    // Get first name for password
-    const firstName = nameInput.split(/\s+/)[0].toLowerCase();
-    const password = firstName;
+
+    let password = passwordField?.value?.trim();
+    if (!password) {
+        try {
+            password = await generateRandomPassword(16);
+            passwordField.value = password;
+        } catch (e) {
+            // Last-resort fallback (keeps old behavior if password API is unavailable)
+            password = nameInput.split(/\s+/)[0].toLowerCase();
+            passwordField.value = password;
+        }
+    }
     
     // Concatenate all name parts (remove extra spaces)
     const fullName = nameInput.split(/\s+/).filter(part => part.length > 0).join(' ');
@@ -187,7 +269,21 @@ async function handleMemberSubmit(e) {
         }
         
         const result = await response.json();
-        alert(`User ${fullName} (${email}) has been successfully added!\nPassword: ${password}`);
+
+        // Email the user their login details (best-effort; user creation succeeds even if email fails)
+        try {
+            const emailResult = await sendNewUserEmail({ fullName, email, password });
+            if (emailResult.sent) {
+                showNotification(`User added. Login details emailed to ${email}.`, 'success');
+            } else {
+                showNotification(`User added. Email not sent (${emailResult.reason}).`, 'info');
+                alert(`User ${fullName} (${email}) has been successfully added!\nPassword: ${password}`);
+            }
+        } catch (emailError) {
+            console.error('EmailJS send failed:', emailError);
+            showNotification('User added, but failed to send email. Password shown in alert.', 'error');
+            alert(`User ${fullName} (${email}) has been successfully added!\nPassword: ${password}`);
+        }
         
         hideAddMemberForm();
         loadAdminMembers();
@@ -237,9 +333,6 @@ async function loadAdminMembers() {
         let html = `<table class="members-table"><thead><tr><th>Name</th><th>Email</th><th>Password</th><th>Role</th>${actionsHeader}</tr></thead><tbody>`;
         
         users.forEach(user => {
-            // Extract first name from full name for password display
-            const firstName = user.name ? user.name.split(/\s+/)[0].toLowerCase() : 'N/A';
-            
             // Only show delete button for admin users
             const deleteButton = currentUserRole === 'admin' 
                 ? `<button class="btn btn-small btn-danger" onclick="deleteUser('${user.id}', '${user.email}')">Delete</button>`
@@ -258,7 +351,7 @@ async function loadAdminMembers() {
                 <tr>
                     <td>${user.name || '-'}</td>
                     <td>${user.email}</td>
-                    <td><code>${firstName}</code></td>
+                    <td><code>sent via email</code></td>
                     <td>${roleDisplay}</td>
                     ${currentUserRole === 'admin' ? `<td>${deleteButton}</td>` : ''}
                 </tr>
@@ -846,6 +939,7 @@ async function createSectionFromForm() {
 window.showAddMemberForm = showAddMemberForm;
 window.hideAddMemberForm = hideAddMemberForm;
 window.handleMemberSubmit = handleMemberSubmit;
+window.regenerateMemberPassword = regenerateMemberPassword;
 window.updateUserRole = updateUserRole;
 window.deleteUser = deleteUser;
 window.resetAllReviews = resetAllReviews;

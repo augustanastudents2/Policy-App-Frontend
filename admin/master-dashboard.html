@@ -7,6 +7,7 @@
     <title>Master Dashboard - ASA Policy App</title>
     <link rel="icon" type="image/png" href="/assets/asalogo.png">
     <script defer src="/_vercel/insights/script.js"></script>
+    <script src="/config.js"></script>
     <link rel="stylesheet" href="/css/admin.css">
 </head>
 <body class="admin-page">
@@ -97,8 +98,11 @@
                             <input type="email" id="memberEmail" required>
                         </div>
                         <div class="form-group">
-                            <label for="memberPassword">Password (Auto-generated from first name)</label>
+                            <label for="memberPassword">Password (Auto-generated)</label>
                             <input type="text" id="memberPassword" name="memberPassword" readonly class="readonly-input" aria-label="Auto-generated password">
+                            <div style="margin-top: 10px;">
+                                <button type="button" class="btn btn-secondary" onclick="regenerateMemberPassword()">Regenerate Password</button>
+                            </div>
                         </div>
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">Add User</button>
@@ -160,6 +164,7 @@
 
     <script src="/js/admin/admin.js"></script>
     <script src="/js/shared/sections.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script src="/js/admin/master-dashboard.js"></script>
     <!-- Profile Side Panel -->
     <div id="profilePanel" class="profile-panel hidden">
